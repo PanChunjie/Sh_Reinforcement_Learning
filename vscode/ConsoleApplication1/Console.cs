@@ -11,8 +11,8 @@ namespace ConsoleApplication1
     {
         public static void Main(string[] args)
         {
-            int action_runtime = 360 * 5;
-            int state_runtime = 40 * 5;
+            int action_runtime = 180 * 5;
+            int state_runtime = 180 * 5;
             //Initialize all the instances
             ShAgent agent = new ShAgent();
             VissimTools.InitVissimTools();
@@ -21,9 +21,9 @@ namespace ConsoleApplication1
 
             while (true)
             {
-                
-                
+
                 //get initial state from vissim to agent
+                VissimTools.vissimRunFirstInterval();
                 double raw_state = VissimTools.vissimState(count, state_runtime); // TBD:
 
                 // map to discrete 

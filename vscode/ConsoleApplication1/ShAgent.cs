@@ -21,7 +21,7 @@ namespace ConsoleApplication1
         // action setup
         public static double min_action = 60; //TBD
         public static double max_action = 105; // TBD
-        public static int action_size = 10; //TBD
+        public static int action_size = 9; //TBD
         public double action_interval =
             (max_action - min_action) / action_size;
         // state setup

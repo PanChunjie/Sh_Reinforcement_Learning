@@ -67,7 +67,7 @@ namespace ConsoleApplication1
         // This represents how many times the Vissim traffic model runs in a second during the simulation.
         public static int SimRes = 5;
         public static int RandSeed = 54;
-        public static int DataCollectionInterval = 20; //3 mins
+        public static int DataCollectionInterval = 180; //3 mins
         public static int volume = 5000;
         #endregion
 
@@ -88,10 +88,13 @@ namespace ConsoleApplication1
             SetSimulationAtts(SimPeriod, SimRes, RandSeed);
             SetEvaluationAtts(SimPeriod, DataCollectionInterval);
             SetVehicleInput(volume);
+            SetW99cc1Distr(103);
             vissim.ResumeUpdateGUI();
 
         }
-
+        public static void SetW99cc1Distr(double value) {
+            vissim.Net.DrivingBehaviors.get_ItemByKey(1).set_AttValue("W99cc1Distr", value);
+        }
         public static void SetVehicleInput(int volume){
             var vI = VissimTools.vissim.Net.VehicleInputs;
             vI.get_ItemByKey(1).set_AttValue("Volume(1)", volume);
@@ -184,12 +187,17 @@ namespace ConsoleApplication1
         {
             bool check = vissim.Net.DesSpeedDecisions == null;
             int spd_no = get_DesireSpeedNumer(speed);
-            vissim.Net.DesSpeedDecisions.get_ItemByKey(1).set_AttValue("DesSpeedDistr(10)", spd_no); // car
+            for (int i = 1; i < 31; i++) {
+                vissim.Net.DesSpeedDecisions.get_ItemByKey(i).set_AttValue("DesSpeedDistr(10)", spd_no);
+                vissim.Net.DesSpeedDecisions.get_ItemByKey(i).set_AttValue("DesSpeedDistr(70)", spd_no);
+            }
+          /*  vissim.Net.DesSpeedDecisions.get_ItemByKey(1).set_AttValue("DesSpeedDistr(10)", spd_no); // car
             vissim.Net.DesSpeedDecisions.get_ItemByKey(2).set_AttValue("DesSpeedDistr(10)", spd_no);
             vissim.Net.DesSpeedDecisions.get_ItemByKey(3).set_AttValue("DesSpeedDistr(10)", spd_no);
             vissim.Net.DesSpeedDecisions.get_ItemByKey(1).set_AttValue("DesSpeedDistr(70)", spd_no); // cav
             vissim.Net.DesSpeedDecisions.get_ItemByKey(2).set_AttValue("DesSpeedDistr(70)", spd_no);
             vissim.Net.DesSpeedDecisions.get_ItemByKey(3).set_AttValue("DesSpeedDistr(70)", spd_no);
+            */
         }
 
         public static int get_DesireSpeedNumer(int speed)
@@ -294,7 +302,12 @@ namespace ConsoleApplication1
             return Reward;
         }
 
-
+        public static void vissimRunFirstInterval() {
+            for (int i = 0; i < 180 * SimRes; i++) {
+                VissimTools.RunSingleStep();
+            }
+            
+        }
 
         #endregion
 

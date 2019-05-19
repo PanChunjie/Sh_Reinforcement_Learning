@@ -19,20 +19,20 @@ namespace ConsoleApplication1
         public double epsilon = 0.1;
         public double convergence = 0.1;
         // action setup
-        public static double min_action = 30; //TBD
-        public static double max_action = 70; // TBD
-        public static int action_size = 8; //TBD
+        public static double min_action = 60; //TBD
+        public static double max_action = 105; // TBD
+        public static int action_size = 10; //TBD
         public double action_interval =
             (max_action - min_action) / action_size;
         // state setup
-        public static double min_state = 1800; // TBD
-        public static double max_state = 7200; // TBD
-        public static int state_size = 12; // TBD
+        public static double min_state = 3600; // TBD
+        public static double max_state = 6000; // TBD
+        public static int state_size = 13; // TBD
         public double state_interval =
             (max_state - min_state) / state_size;
         // q table
         public double[,] q_table = init_q_table(state_size, action_size);
-
+       
         public ShAgent()
         {
         }
@@ -46,7 +46,22 @@ namespace ConsoleApplication1
         public static double[,] init_q_table(int state_size, int action_size)
         {
             // get the q-table initialized
-            double[,] q_table = new double[state_size, action_size];
+            double[,] q_table = new double[13, 10]{
+                {  4680,  3240,    3960,    2880 ,   2880  ,  3600  ,  3240   , 1800   , 4680   , 3600},
+                {3960,   3240,    3600,    3240,    2160 ,   3960 ,   4680 ,   3960 ,   3600 ,   3600},
+                { 3960,	3960,	5040	,3600,	2160,	4320,	3960,	3960,	3600,	4320},
+                { 4320 , 4320 ,   4320   , 4320 ,   3600  ,  4320 ,   2520 ,   3600 ,   3960 ,   3240},
+                {4320 ,  5040, 4320  ,  4680 ,   4320  ,  4680,    3240 ,   5040  ,  2880 ,   3600},
+                { 4680 , 4680  ,  4680  ,  4320,   3960   , 1080   , 3960 ,   4680  ,  4320  ,  3960},
+                {3960,   3960,    3960,    2880,    5040,    3600,    4680,    3600,    3240,    3960},
+                { 4320,  3960,    3960 ,   5040,    3240,    5040,    3240,    3600,    3600,    3240},
+                { 4320,  3600 ,   3600 ,   3960,    3600,    3960,    3600,    3240,    3960,    3960},
+                { 3960,  3960,    4320 ,   3600,    4320,    2880,    1440,    3960,    3960,    4680},
+                { 4320,  4680,    3960 ,   3600, 4680,    5040,    3240,    4680,    3960,    3240},
+                { 3600,  3600,    4320,    5040,    3600,    4320,    4680,    3600,    4680,    5040},
+                { 2160,  2160,   3600 ,  3960,    3600,    4680,    3600,    3600,    3960,    3960},
+            };
+      
             return q_table;
         }
 
@@ -67,7 +82,7 @@ namespace ConsoleApplication1
             if (rand.NextDouble() < this.epsilon)
             {
                 // explore: select a random action base on eplison-greedy
-                action = rand.Next(action_size + 1);
+                action = rand.Next(action_size);
             }
             else
             {
@@ -132,7 +147,10 @@ namespace ConsoleApplication1
         {
             return min_state;
         }
-
+        public double get_max_state()
+        {
+            return max_state;
+        }
         public double get_min_action()
         {
             return min_action;

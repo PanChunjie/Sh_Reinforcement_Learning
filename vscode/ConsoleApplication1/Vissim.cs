@@ -404,13 +404,13 @@ namespace ConsoleApplication1
             {
                 case 1:
                     return vissim.Net.Links.get_ItemByKey(6).get_AttValue("NumLanes");
-                    break;
+                    
                 case 2:
                     return vissim.Net.Links.get_ItemByKey(3).get_AttValue("NumLanes");
-                    break;
+                    
                 case 3:
                     return vissim.Net.Links.get_ItemByKey(3).get_AttValue("NumLanes");
-                    break;
+                    
             }
             return 0;
         }

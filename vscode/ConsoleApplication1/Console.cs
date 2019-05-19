@@ -12,7 +12,7 @@ namespace ConsoleApplication1
     {
         public static void Main(string[] args)
         {
-            train(100);    
+            train(5);    
         }
 
         public static void train(int epoch)
@@ -28,12 +28,12 @@ namespace ConsoleApplication1
             //Initialize all the instances
             ShAgent agent = new ShAgent();
             VissimTools.InitVissimTools();
-
+            VissimTools.vissimRunFirstInterval();
             for (int e = 0; e < epoch; e++)
             {
 
                 //get initial state from vissim to agent
-                VissimTools.vissimRunFirstInterval();
+               
                 double raw_state = VissimTools.vissimState(count, state_runtime); // TBD:
 
                 // map to discrete  

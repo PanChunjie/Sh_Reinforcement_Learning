@@ -69,20 +69,29 @@ namespace ConsoleApplication1
         {
             // update Bellman equation
             double current_q = this.q_table[state, action];
-            double new_q = reward;
-            this.q_table[state, action] += this.learning_rate * (new_q - current_q);
+            double new_q = reward; // add future step if we add furture actions
+            this.q_table[state, action] = (1 - this.learning_rate) * current_q + this.learning_rate * new_q;
+            //this.q_table[state, action] += this.learning_rate * (new_q - current_q);
         }
 
-        public int get_action(int state)
+        public List<int> get_action(int state)
         {
             Random rand = new Random();
-            int action = -1;
+            List<int> action = new List<int>() { -1, -1 };
+
+            // for-test: remove after
+            double temp = rand.NextDouble();
+
+            System.Console.WriteLine("------------------ Random Test ------------------");
+            System.Console.WriteLine(temp);
 
 
-            if (rand.NextDouble() < this.epsilon)
+            //if (rand.NextDouble() < this.epsilon)
+            if (temp < this.epsilon)
             {
                 // explore: select a random action base on eplison-greedy
-                action = rand.Next(action_size);
+                action[0] = rand.Next(action_size + 1);
+                action[1] = 0;
             }
             else
             {
@@ -96,7 +105,8 @@ namespace ConsoleApplication1
                 }
 
                 // TODO: consider to add randomness here
-                action = Array.IndexOf(q_on_state, q_on_state.Max());
+                action[0] = Array.IndexOf(q_on_state, q_on_state.Max());
+                action[1] = 1;
             }
             return action;
         }

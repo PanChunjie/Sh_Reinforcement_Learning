@@ -68,11 +68,11 @@ namespace ConsoleApplication1
         public static int SimRes = 5;
         public static int RandSeed = 54;
         public static int DataCollectionInterval = 180; //3 mins
-
+        public static int volume = 5000;
         #endregion
-           
 
-          
+
+
         public static VISSIMLIB.Vissim vissim = new VISSIMLIB.Vissim();
         //public static IDataCollectionMeasurementContainer datapoints = vissim.Net.DataCollectionMeasurements;
 
@@ -87,8 +87,17 @@ namespace ConsoleApplication1
             vissim.SuspendUpdateGUI();
             SetSimulationAtts(SimPeriod, SimRes, RandSeed);
             SetEvaluationAtts(SimPeriod, DataCollectionInterval);
+            SetVehicleInput(volume);
+            SetW99cc1Distr(103);
             vissim.ResumeUpdateGUI();
 
+        }
+        public static void SetW99cc1Distr(double value) {
+            vissim.Net.DrivingBehaviors.get_ItemByKey(1).set_AttValue("W99cc1Distr", value);
+        }
+        public static void SetVehicleInput(int volume){
+            var vI = VissimTools.vissim.Net.VehicleInputs;
+            vI.get_ItemByKey(1).set_AttValue("Volume(1)", volume);
         }
 
         public static void SetSimulationAtts(int simPeriod, int simRes, int randSeed)
@@ -178,12 +187,17 @@ namespace ConsoleApplication1
         {
             bool check = vissim.Net.DesSpeedDecisions == null;
             int spd_no = get_DesireSpeedNumer(speed);
-            vissim.Net.DesSpeedDecisions.get_ItemByKey(1).set_AttValue("DesSpeedDistr(10)", spd_no); // car
+            for (int i = 1; i < 31; i++) {
+                vissim.Net.DesSpeedDecisions.get_ItemByKey(i).set_AttValue("DesSpeedDistr(10)", spd_no);
+                vissim.Net.DesSpeedDecisions.get_ItemByKey(i).set_AttValue("DesSpeedDistr(70)", spd_no);
+            }
+          /*  vissim.Net.DesSpeedDecisions.get_ItemByKey(1).set_AttValue("DesSpeedDistr(10)", spd_no); // car
             vissim.Net.DesSpeedDecisions.get_ItemByKey(2).set_AttValue("DesSpeedDistr(10)", spd_no);
             vissim.Net.DesSpeedDecisions.get_ItemByKey(3).set_AttValue("DesSpeedDistr(10)", spd_no);
             vissim.Net.DesSpeedDecisions.get_ItemByKey(1).set_AttValue("DesSpeedDistr(70)", spd_no); // cav
             vissim.Net.DesSpeedDecisions.get_ItemByKey(2).set_AttValue("DesSpeedDistr(70)", spd_no);
             vissim.Net.DesSpeedDecisions.get_ItemByKey(3).set_AttValue("DesSpeedDistr(70)", spd_no);
+            */
         }
 
         public static int get_DesireSpeedNumer(int speed)
@@ -239,6 +253,9 @@ namespace ConsoleApplication1
                 case 104:
                     speednum = 775;
                     break;
+                case 105:
+                    speednum = 775;
+                    break;
                 case 110:
                     speednum = 780;
                     break;
@@ -255,7 +272,7 @@ namespace ConsoleApplication1
         //Provide initial state(flowrate) to agent
         // TODO: Add density to initial state for further consideration
         // TODO: Double check the implementation are flowrate and discharging rate
-        public static double vissimState(int run_times, int action = 104) //SimPeriod * SimRes
+        public static double vissimState(int count, int run_times, int action = 104) //SimPeriod * SimRes
         {
             Set_AllDesireSpeed(action);       
             double flowrate = 0;
@@ -264,10 +281,10 @@ namespace ConsoleApplication1
                 VissimTools.RunSingleStep();             
                 
             }
+          //  int interval_num = (int)(run_times / (SimRes * DataCollectionInterval) * count + 1);
             int datapoint1_vehs = VissimTools.Get_CurrentDataCollectionResult_Vehs(1);
             //int num_lanes = VissimTools.Get_NumLaneByVehTravelTm(2);
             flowrate = VissimTools.Get_FlowRate(datapoint1_vehs, DataCollectionInterval);
-            // int density = VissimTools.Get_Density(int num_vehs, int timeinterval, double speed, double distance, int num_lane)
             return flowrate;
         }
         public static double vissimReward(int run_times, int action) //SimPeriod * SimRes
@@ -277,14 +294,20 @@ namespace ConsoleApplication1
             for (int i = 0; i < run_times; i++)
             {
                 VissimTools.RunSingleStep();
-            }        
+            }
+            
             int datapoint1_vehs = VissimTools.Get_CurrentDataCollectionResult_Vehs(4);
             Reward = VissimTools.Get_FlowRate(datapoint1_vehs, DataCollectionInterval);
             // int density = VissimTools.Get_Density(int num_vehs, int timeinterval, double speed, double distance, int num_lane)
             return Reward;
         }
 
-
+        public static void vissimRunFirstInterval() {
+            for (int i = 0; i < 180 * SimRes; i++) {
+                VissimTools.RunSingleStep();
+            }
+            
+        }
 
         #endregion
 

@@ -10,15 +10,21 @@ namespace ConsoleApplication1
     {
         public static void Main(string[] args)
         {
+            train(100);
+        }
+
+
+        public static void train(int epoch){
+            int count = 0;            
             int runtime = 180 * 5;
+            List<string> records = new List<string>();
+
             //Initialize all the instances
             ShAgent agent = new ShAgent();
             VissimTools.InitVissimTools();
 
-            int count = 0;
+            for (int e = 0; e < epoch; e++){
 
-            while (true)
-            {
                 count++;
 
                 //get initial state from vissim to agent
@@ -31,7 +37,7 @@ namespace ConsoleApplication1
                 double[,] current_q_table = agent.q_table.Clone() as double[,];
 
                 // get action
-                int action = agent.get_action(state);
+                List<int> action = agent.get_action(state);
 
                 // get reward
 
@@ -54,26 +60,29 @@ namespace ConsoleApplication1
 
                 System.Console.WriteLine("Run #:" + count + " ----------- " + diff + " (" + state + " : " + action + ")");
 
+                records.Add(count + "," + diff + "," + state + "," + action[0] + "," + action[1]+ "," + reward)
+
+                // ---------------------------
+
+                // Set a variable to the Documents path.
+                string outPutPath = "./"
+
+                // Write the string array to a new file named "WriteLines.txt".
+                using (StreamWriter outputFile = new StreamWriter(Path.Combine(docPath, "outputs.csv")))
+                {
+                    foreach (string line in records)
+                        outputFile.WriteLine(line);
+                }
+
+                // ---------------------------
+
                 // TBD: check if this is a good check
                 if (diff < agent.convergence)
                 {
                     break;
                 }
 
-                // System.Console.WriteLine(agent.q_table);
-
             }
-            //get action 
-
-            //get reward
-
-            //update Q-table
-
-            //next loop
-
-
-            // VissimTools.InitVissimTools();
-            // VissimTools.vissimStart()
         }
     }
 }

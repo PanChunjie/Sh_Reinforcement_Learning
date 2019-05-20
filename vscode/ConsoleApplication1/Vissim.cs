@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using VISSIMLIB;
-using Microsoft.Office.Interop.Excel;
+//using Microsoft.Office.Interop.Excel;
 using System.Reflection;
 using System.IO;
 
@@ -60,10 +60,10 @@ namespace ConsoleApplication1
 
         #region Initial Values
 
-        public const string NetworkPath = @"D:\School11111111111111111111111111111\Coop2019\Summer\Vissim 2\SH.inpx";
-        public const string LayoutPath = @"D:\School11111111111111111111111111111\Coop2019\Summer\Vissim 2\SH.layx";
+        public const string NetworkPath = @"C:\Users\KRATOS\Desktop\Vissim 2\SH.inpx";
+        public const string LayoutPath = @"C:\Users\KRATOS\Desktop\Vissim 2\SH.layx";
         //Simulation time in seconds
-        public const int SimPeriod = 18000;
+        public const int SimPeriod = 99999;
         // This represents how many times the Vissim traffic model runs in a second during the simulation.
         public static int SimRes = 5;
         public static int RandSeed = 54;
@@ -154,6 +154,7 @@ namespace ConsoleApplication1
             vissim.Simulation.Stop();
         }
 
+        /*
         public static void saveToExcel(int index, int volume, int vehs)
         {
             string FilePath = "D:/School11111111111111111111111111111/Coop2019/Summer/ConsoleApplication1/ConsoleApplication1/data.xls";
@@ -182,6 +183,8 @@ namespace ConsoleApplication1
 
 
         }
+
+        */
 
         public static void Set_AllDesireSpeed(int speed)
         {
@@ -285,6 +288,7 @@ namespace ConsoleApplication1
             int datapoint1_vehs = VissimTools.Get_CurrentDataCollectionResult_Vehs(1);
             //int num_lanes = VissimTools.Get_NumLaneByVehTravelTm(2);
             flowrate = VissimTools.Get_FlowRate(datapoint1_vehs, DataCollectionInterval);
+            GC.Collect();
             return flowrate;
         }
         public static double vissimReward(int run_times, int action) //SimPeriod * SimRes
@@ -299,6 +303,7 @@ namespace ConsoleApplication1
             int datapoint1_vehs = VissimTools.Get_CurrentDataCollectionResult_Vehs(4);
             Reward = VissimTools.Get_FlowRate(datapoint1_vehs, DataCollectionInterval);
             // int density = VissimTools.Get_Density(int num_vehs, int timeinterval, double speed, double distance, int num_lane)
+            GC.Collect();
             return Reward;
         }
 
@@ -306,7 +311,8 @@ namespace ConsoleApplication1
             for (int i = 0; i < 180 * SimRes; i++) {
                 VissimTools.RunSingleStep();
             }
-            
+            GC.Collect();
+
         }
 
         #endregion

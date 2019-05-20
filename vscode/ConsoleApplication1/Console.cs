@@ -1,4 +1,4 @@
-using Microsoft.Office.Interop.Excel;
+//using Microsoft.Office.Interop.Excel;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,7 +12,8 @@ namespace ConsoleApplication1
     {
         public static void Main(string[] args)
         {
-            train(3, 2);
+            train(1000, 10);
+            //train(3, 4);
         }
 
         public static bool train(int epoch, int batch)
@@ -21,13 +22,10 @@ namespace ConsoleApplication1
             int count = 0;
             int action_runtime = 180 * 5;
             int state_runtime = 180 * 5;
-            string outPutPath = "./";
+            string outputPath = "./outputs";
 
-            List<double> errors = new List<double>();
+            List<string> errors = new List<string>();
             List<string> records = new List<string>();
-
-            StreamWriter recordWriter = new StreamWriter(Path.Combine(outPutPath, "outputs.csv"));
-            StreamWriter errorWriter = new StreamWriter(Path.Combine(outPutPath, "error_outputs.csv"));
 
             //Initialize all the instances
             ShAgent agent = new ShAgent();
@@ -35,6 +33,8 @@ namespace ConsoleApplication1
             VissimTools.vissimRunFirstInterval();
             for (int e = 0; e < epoch; e++)
             {
+                var watch = System.Diagnostics.Stopwatch.StartNew();
+
                 int batch_count = 0;
                 double batch_diff = 0;       
 
@@ -69,6 +69,7 @@ namespace ConsoleApplication1
                     // update q table
                     agent.update_q_table(state, action[0], reward);
 
+                    /*
                     Application app = new Application { Visible = false };
                     Workbook xBook = app.Workbooks._Open(@"D:\School11111111111111111111111111111\Coop2019\Summer\Capacity\Data\data.xlsx");
                     Worksheet xSheet = (Worksheet)xBook.Sheets[1];
@@ -80,7 +81,7 @@ namespace ConsoleApplication1
                     xSheet = null;
                     xBook.Close(0); //xlBook.Close(true); //Workbook.close(SaveChanges, filename, routeworkbook )
                     app.Quit();
-
+                    */
 
                     double diff = 0;
                     count++;
@@ -101,55 +102,44 @@ namespace ConsoleApplication1
                     records.Add(count + "," + diff + "," + state + "," + action[0] + "," + action[1] + "," + reward);
 
                     batch_diff += diff;
+
+                    GC.Collect();
                 }
                 // TBD: check if this is a good check
 
                 double error = batch_diff / batch_count;
-                errors.Add(error);
+                errors.Add(error + "");
 
                 System.Console.WriteLine("Error: ================== >" + error);
 
-               
-
                 if ((batch_diff / batch_count) < agent.convergence)
                 {
-                    // Write the string array to a new file named "WriteLines.txt".
-                   
-                        foreach (string line in records)
-                        recordWriter.WriteLine(line);
-                
-
-                    // Write the string array to a new file named "WriteLines.txt".
-                 
-                        foreach (double err in errors)
-                            errorWriter.WriteLine(err);
-
-
-                    // ---------------------------
-                    recordWriter.Close();
-                    errorWriter.Close();
+                    summary(records, outputPath, "final_outputs.csv");
+                    summary(errors, outputPath, "final_error_outputs.csv");
+                    
                     return true;
                 }
+
+                watch.Stop();
+
+                System.Console.WriteLine("Epoch " + e + " execution time: ========== >" + watch.ElapsedMilliseconds);
+
+                summary(records, outputPath, "temp_outputs_epoch_" + e + ".csv");
+                summary(errors, outputPath, "temp_error_outputs_epoch_" + e + ".csv");
+
+                GC.Collect();
             }
-
-            // Write the string array to a new file named "WriteLines.txt".
-
-            foreach (string line in records)
-                recordWriter.WriteLine(line);
-
-
-            // Write the string array to a new file named "WriteLines.txt".
-
-            foreach (double err in errors)
-                errorWriter.WriteLine(err);
-
-
-            // ---------------------------
-
-            recordWriter.Close();
-            errorWriter.Close();
-
             return true;
+        }
+
+        public static void summary(List<string> data, string outputPath, string fileName)
+        {
+            StreamWriter fileWriter = new StreamWriter(Path.Combine(outputPath, fileName));
+
+            foreach (string line in data)
+                fileWriter.WriteLine(line);
+
+            fileWriter.Close();
         }
     }
 

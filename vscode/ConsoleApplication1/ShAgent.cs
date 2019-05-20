@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using VISSIMLIB;
-using Microsoft.Office.Interop.Excel;
+//using Microsoft.Office.Interop.Excel;
 using System.Reflection;
 using System.IO;
 
@@ -16,7 +16,7 @@ namespace ConsoleApplication1
         // hyperparameter
         public double learning_rate = 0.01;
         public double discount_factor = 0.9;
-        public double epsilon = 0.1;
+        public double epsilon = 0.3;
         public double convergence = 0.1;
         // action setup
         public static double min_action = 60; //TBD
@@ -81,10 +81,6 @@ namespace ConsoleApplication1
 
             // for-test: remove after
             double temp = rand.NextDouble();
-
-            System.Console.WriteLine("------------------ Random Test ------------------");
-            System.Console.WriteLine(temp);
-
 
             //if (rand.NextDouble() < this.epsilon)
             if (temp < this.epsilon)

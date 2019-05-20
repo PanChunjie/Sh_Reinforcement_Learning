@@ -27,7 +27,7 @@ namespace ConsoleApplication1
         // state setup
         public static double min_state = 3600; // TBD
         public static double max_state = 6000; // TBD
-        public static int state_size = 13; // TBD
+        public static int state_size = 12; // TBD
         public double state_interval =
             (max_state - min_state) / state_size;
         // q table

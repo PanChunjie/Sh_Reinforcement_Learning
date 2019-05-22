@@ -9,6 +9,8 @@ using System.Reflection;
 using System.IO;
 
 
+
+
 namespace ConsoleApplication1
 {
     public class ShAgent
@@ -32,7 +34,7 @@ namespace ConsoleApplication1
             (max_state - min_state) / state_size;
         // q table
         public double[,] q_table = init_q_table(state_size, action_size);
-       
+
         public ShAgent()
         {
         }
@@ -46,6 +48,35 @@ namespace ConsoleApplication1
         public static double[,] init_q_table(int state_size, int action_size)
         {
             // get the q-table initialized
+            double[,] q_table = new double[state_size, action_size];
+
+            string path = Directory.GetCurrentDirectory();
+
+            System.Console.WriteLine(path);
+
+            StreamReader fileReader = new StreamReader(@"./outputs/_init_q_table.csv");
+
+            List<string> data = new List<string>();
+
+            while (!fileReader.EndOfStream)
+            {
+                var line = fileReader.ReadLine();
+                data.Add(line);
+            }
+
+
+            for (int s = 0; s < state_size; s++)
+            {
+                var line = data[s].Split(',').ToList<string>();
+                for (int a = 0; a < action_size; a++)
+                {
+                    q_table[s, a] = Convert.ToDouble(line[a]);
+                }
+            }
+
+            fileReader.Close();
+
+            /*
             double[,] q_table = new double[13, 10]{
                 {  4680,  3240,    3960,    2880 ,   2880  ,  3600  ,  3240   , 1800   , 4680   , 3600},
                 {3960,   3240,    3600,    3240,    2160 ,   3960 ,   4680 ,   3960 ,   3600 ,   3600},
@@ -61,7 +92,8 @@ namespace ConsoleApplication1
                 { 3600,  3600,    4320,    5040,    3600,    4320,    4680,    3600,    4680,    5040},
                 { 2160,  2160,   3600 ,  3960,    3600,    4680,    3600,    3600,    3960,    3960},
             };
-      
+            */
+
             return q_table;
         }
 

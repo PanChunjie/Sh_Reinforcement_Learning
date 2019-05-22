@@ -12,7 +12,8 @@ namespace ConsoleApplication1
     {
         public static void Main(string[] args)
         {
-            train(1000, 10);
+            //train(1000, 10);
+
             //train(3, 4);
         }
 
@@ -36,12 +37,12 @@ namespace ConsoleApplication1
                 var watch = System.Diagnostics.Stopwatch.StartNew();
 
                 int batch_count = 0;
-                double batch_diff = 0;       
+                double batch_diff = 0;
 
                 for (int b = 0; b < batch; b++)
                 {
                     //get initial state from vissim to agent
-                    
+
                     double raw_state = VissimTools.vissimState(count, state_runtime); // TBD:
 
                     // map to discrete  
@@ -116,7 +117,8 @@ namespace ConsoleApplication1
                 {
                     summary(records, outputPath, "final_outputs.csv");
                     summary(errors, outputPath, "final_error_outputs.csv");
-                    
+                    save_q(agent.q_table, "final");
+
                     return true;
                 }
 
@@ -126,6 +128,7 @@ namespace ConsoleApplication1
 
                 summary(records, outputPath, "temp_outputs_epoch_" + e + ".csv");
                 summary(errors, outputPath, "temp_error_outputs_epoch_" + e + ".csv");
+                save_q(agent.q_table, e + "");
 
                 GC.Collect();
             }
@@ -139,6 +142,28 @@ namespace ConsoleApplication1
             foreach (string line in data)
                 fileWriter.WriteLine(line);
 
+            fileWriter.Close();
+        }
+
+        public static void save_q(double[,] q_table, string fileName)
+        {
+            StreamWriter fileWriter = new StreamWriter(@"./outputs/q_table_" + fileName + ".csv");
+
+            for (int s = 0; s < q_table.GetLength(0); s++)
+            {
+                string content = "";
+                for (int a = 0; a < q_table.GetLength(1); a++)
+                {
+                    content += q_table[s, a].ToString();
+
+                    if (a != q_table.GetLength(1) - 1)
+                    {
+                        content += ",";
+                    }
+                }
+                //trying to write data to csv
+                fileWriter.WriteLine(content);
+            }
             fileWriter.Close();
         }
     }

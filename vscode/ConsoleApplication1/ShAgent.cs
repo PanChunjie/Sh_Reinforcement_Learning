@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using VISSIMLIB;
-using Microsoft.Office.Interop.Excel;
+//using Microsoft.Office.Interop.Excel;
 using System.Reflection;
 using System.IO;
+
+
 
 
 namespace ConsoleApplication1
@@ -16,17 +18,17 @@ namespace ConsoleApplication1
         // hyperparameter
         public double learning_rate = 0.01;
         public double discount_factor = 0.9;
-        public double epsilon = 0.1;
+        public double epsilon = 0.3;
         public double convergence = 0.1;
         // action setup
-        public static double min_action = 30; //TBD
-        public static double max_action = 70; // TBD
-        public static int action_size = 8; //TBD
+        public static double min_action = 60; //TBD
+        public static double max_action = 105; // TBD
+        public static int action_size = 9; //TBD
         public double action_interval =
             (max_action - min_action) / action_size;
         // state setup
-        public static double min_state = 1800; // TBD
-        public static double max_state = 7200; // TBD
+        public static double min_state = 3600; // TBD
+        public static double max_state = 6000; // TBD
         public static int state_size = 12; // TBD
         public double state_interval =
             (max_state - min_state) / state_size;
@@ -47,6 +49,51 @@ namespace ConsoleApplication1
         {
             // get the q-table initialized
             double[,] q_table = new double[state_size, action_size];
+
+            string path = Directory.GetCurrentDirectory();
+
+            System.Console.WriteLine(path);
+
+            StreamReader fileReader = new StreamReader(@"./outputs/_init_q_table.csv");
+
+            List<string> data = new List<string>();
+
+            while (!fileReader.EndOfStream)
+            {
+                var line = fileReader.ReadLine();
+                data.Add(line);
+            }
+
+
+            for (int s = 0; s < state_size; s++)
+            {
+                var line = data[s].Split(',').ToList<string>();
+                for (int a = 0; a < action_size; a++)
+                {
+                    q_table[s, a] = Convert.ToDouble(line[a]);
+                }
+            }
+
+            fileReader.Close();
+
+            /*
+            double[,] q_table = new double[13, 10]{
+                {  4680,  3240,    3960,    2880 ,   2880  ,  3600  ,  3240   , 1800   , 4680   , 3600},
+                {3960,   3240,    3600,    3240,    2160 ,   3960 ,   4680 ,   3960 ,   3600 ,   3600},
+                { 3960,	3960,	5040	,3600,	2160,	4320,	3960,	3960,	3600,	4320},
+                { 4320 , 4320 ,   4320   , 4320 ,   3600  ,  4320 ,   2520 ,   3600 ,   3960 ,   3240},
+                {4320 ,  5040, 4320  ,  4680 ,   4320  ,  4680,    3240 ,   5040  ,  2880 ,   3600},
+                { 4680 , 4680  ,  4680  ,  4320,   3960   , 1080   , 3960 ,   4680  ,  4320  ,  3960},
+                {3960,   3960,    3960,    2880,    5040,    3600,    4680,    3600,    3240,    3960},
+                { 4320,  3960,    3960 ,   5040,    3240,    5040,    3240,    3600,    3600,    3240},
+                { 4320,  3600 ,   3600 ,   3960,    3600,    3960,    3600,    3240,    3960,    3960},
+                { 3960,  3960,    4320 ,   3600,    4320,    2880,    1440,    3960,    3960,    4680},
+                { 4320,  4680,    3960 ,   3600, 4680,    5040,    3240,    4680,    3960,    3240},
+                { 3600,  3600,    4320,    5040,    3600,    4320,    4680,    3600,    4680,    5040},
+                { 2160,  2160,   3600 ,  3960,    3600,    4680,    3600,    3600,    3960,    3960},
+            };
+            */
+
             return q_table;
         }
 
@@ -54,20 +101,25 @@ namespace ConsoleApplication1
         {
             // update Bellman equation
             double current_q = this.q_table[state, action];
-            double new_q = reward;
-            this.q_table[state, action] += this.learning_rate * (new_q - current_q);
+            double new_q = reward; // add future step if we add furture actions
+            this.q_table[state, action] = (1 - this.learning_rate) * current_q + this.learning_rate * new_q;
+            //this.q_table[state, action] += this.learning_rate * (new_q - current_q);
         }
 
-        public int get_action(int state)
+        public List<int> get_action(int state)
         {
             Random rand = new Random();
-            int action = -1;
+            List<int> action = new List<int>() { -1, -1 };
 
+            // for-test: remove after
+            double temp = rand.NextDouble();
 
-            if (rand.NextDouble() < this.epsilon)
+            //if (rand.NextDouble() < this.epsilon)
+            if (temp < this.epsilon)
             {
                 // explore: select a random action base on eplison-greedy
-                action = rand.Next(action_size + 1);
+                action[0] = rand.Next(action_size + 1);
+                action[1] = 0;
             }
             else
             {
@@ -81,7 +133,8 @@ namespace ConsoleApplication1
                 }
 
                 // TODO: consider to add randomness here
-                action = Array.IndexOf(q_on_state, q_on_state.Max());
+                action[0] = Array.IndexOf(q_on_state, q_on_state.Max());
+                action[1] = 1;
             }
             return action;
         }
@@ -132,7 +185,10 @@ namespace ConsoleApplication1
         {
             return min_state;
         }
-
+        public double get_max_state()
+        {
+            return max_state;
+        }
         public double get_min_action()
         {
             return min_action;

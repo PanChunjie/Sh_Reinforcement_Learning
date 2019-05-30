@@ -1,0 +1,1 @@
+fold used for storing trained model (.h5)

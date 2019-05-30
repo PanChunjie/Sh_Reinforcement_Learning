@@ -139,7 +139,7 @@ namespace ConsoleApplication1
         }
 
         public static void Set_AllDesireSpeed(int speed)
-        {          
+        {
             int count = vissim.Net.DesSpeedDecisions.Count;
             int spd_no = get_DesireSpeedNumer(speed);
             for (int i = 1; i <= count; i++)
@@ -154,7 +154,7 @@ namespace ConsoleApplication1
             int count = vissim.Net.DesSpeedDecisions.Count;
             int index = 0;
             int[] spd_nos = get_DesireSpeedNumberArray(speeds);
-            for (int i = 0; i <= count-3; i = i + 3)
+            for (int i = 0; i <= count - 3; i = i + 3)
             {
                 index = i / 3;
                 vissim.Net.DesSpeedDecisions.get_ItemByKey(i + 1).set_AttValue("DesSpeedDistr(10)", spd_nos[index]);

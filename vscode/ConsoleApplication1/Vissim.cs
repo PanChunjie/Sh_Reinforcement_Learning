@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using VISSIMLIB;
-//using Microsoft.Office.Interop.Excel;
 using System.Reflection;
 using System.IO;
 
@@ -38,23 +37,6 @@ namespace ConsoleApplication1
         public double CrtLoc { get { return crtLoc; } set { crtLoc = value; } }
     }
 
-    class Vissim
-    {
-
-
-
-
-
-
-
-        //Print out Info
-        // VissimTools.AllLinksInfo();
-        //  VissimTools.AllVehiclesName();
-        //  VissimTools.Get_DetectorName();
-
-
-    }
-
     class VissimTools
     {
 
@@ -83,7 +65,7 @@ namespace ConsoleApplication1
             //Load a Network
             vissim.LoadNet(NetworkPath);
             //Load a Layout
-            vissim.LoadLayout(LayoutPath);    
+            vissim.LoadLayout(LayoutPath);
             vissim.SuspendUpdateGUI();
             SetSimulationAtts(SimPeriod, SimRes, RandSeed);
             SetEvaluationAtts(SimPeriod, DataCollectionInterval);
@@ -92,10 +74,12 @@ namespace ConsoleApplication1
             vissim.ResumeUpdateGUI();
 
         }
-        public static void SetW99cc1Distr(double value) {
+        public static void SetW99cc1Distr(double value)
+        {
             vissim.Net.DrivingBehaviors.get_ItemByKey(1).set_AttValue("W99cc1Distr", value);
         }
-        public static void SetVehicleInput(int volume){
+        public static void SetVehicleInput(int volume)
+        {
             var vI = VissimTools.vissim.Net.VehicleInputs;
             vI.get_ItemByKey(1).set_AttValue("Volume(1)", volume);
         }
@@ -154,53 +138,32 @@ namespace ConsoleApplication1
             vissim.Simulation.Stop();
         }
 
-        /*
-        public static void saveToExcel(int index, int volume, int vehs)
-        {
-            string FilePath = "D:/School11111111111111111111111111111/Coop2019/Summer/ConsoleApplication1/ConsoleApplication1/data.xls";
-            Application app = new Application { Visible = false };
-            FileInfo fi = new FileInfo(FilePath);
-            Workbook xBook;
-            if (fi.Exists)     //判断文件是否已经存在,如果存在就删除!
-            {
-                xBook = app.Workbooks.Open(@"D:/School11111111111111111111111111111/Coop2019/Summer/Vissim 2/Data/data.xls");
-            }
-            else
-            {
-                xBook = app.Workbooks.Add(Missing.Value);
-            }
-
-            Worksheet xSheet = (Worksheet)xBook.Sheets[1];
-            string range3 = "A" + index.ToString();
-            string range4 = "B" + index.ToString();
-            Range rng3 = xSheet.get_Range(range3);
-            rng3.Value2 = volume;
-            Range rng4 = xSheet.get_Range(range4);
-            rng4.Value2 = vehs;
-
-            xBook.SaveAs("D:/School11111111111111111111111111111/Coop2019/Summer/Vissim 2/Data/data.xls", true);
-            app.Quit();
-
-
-        }
-
-        */
-
         public static void Set_AllDesireSpeed(int speed)
         {
-            bool check = vissim.Net.DesSpeedDecisions == null;
+            int count = vissim.Net.DesSpeedDecisions.Count;
             int spd_no = get_DesireSpeedNumer(speed);
-            for (int i = 1; i < 31; i++) {
+            for (int i = 1; i <= count; i++)
+            {
                 vissim.Net.DesSpeedDecisions.get_ItemByKey(i).set_AttValue("DesSpeedDistr(10)", spd_no);
                 vissim.Net.DesSpeedDecisions.get_ItemByKey(i).set_AttValue("DesSpeedDistr(70)", spd_no);
             }
-          /*  vissim.Net.DesSpeedDecisions.get_ItemByKey(1).set_AttValue("DesSpeedDistr(10)", spd_no); // car
-            vissim.Net.DesSpeedDecisions.get_ItemByKey(2).set_AttValue("DesSpeedDistr(10)", spd_no);
-            vissim.Net.DesSpeedDecisions.get_ItemByKey(3).set_AttValue("DesSpeedDistr(10)", spd_no);
-            vissim.Net.DesSpeedDecisions.get_ItemByKey(1).set_AttValue("DesSpeedDistr(70)", spd_no); // cav
-            vissim.Net.DesSpeedDecisions.get_ItemByKey(2).set_AttValue("DesSpeedDistr(70)", spd_no);
-            vissim.Net.DesSpeedDecisions.get_ItemByKey(3).set_AttValue("DesSpeedDistr(70)", spd_no);
-            */
+        }
+
+        public static void Set_AllDesireSpeed(int[] speeds)
+        {
+            int count = vissim.Net.DesSpeedDecisions.Count;
+            int index = 0;
+            int[] spd_nos = get_DesireSpeedNumberArray(speeds);
+            for (int i = 0; i <= count - 3; i = i + 3)
+            {
+                index = i / 3;
+                vissim.Net.DesSpeedDecisions.get_ItemByKey(i + 1).set_AttValue("DesSpeedDistr(10)", spd_nos[index]);
+                vissim.Net.DesSpeedDecisions.get_ItemByKey(i + 1).set_AttValue("DesSpeedDistr(70)", spd_nos[index]);
+                vissim.Net.DesSpeedDecisions.get_ItemByKey(i + 2).set_AttValue("DesSpeedDistr(10)", spd_nos[index]);
+                vissim.Net.DesSpeedDecisions.get_ItemByKey(i + 2).set_AttValue("DesSpeedDistr(70)", spd_nos[index]); // cav
+                vissim.Net.DesSpeedDecisions.get_ItemByKey(i + 3).set_AttValue("DesSpeedDistr(10)", spd_nos[index]); // car
+                vissim.Net.DesSpeedDecisions.get_ItemByKey(i + 3).set_AttValue("DesSpeedDistr(70)", spd_nos[index]);
+            }
         }
 
         public static int get_DesireSpeedNumer(int speed)
@@ -272,46 +235,66 @@ namespace ConsoleApplication1
             return speednum;
         }
 
-        //Provide initial state(flowrate) to agent
-        // TODO: Add density to initial state for further consideration
-        // TODO: Double check the implementation are flowrate and discharging rate
-        public static double vissimState(int count, int run_times, int action = 104) //SimPeriod * SimRes
+        public static int[] get_DesireSpeedNumberArray(int[] speeds)
         {
-            Set_AllDesireSpeed(action);       
-            double flowrate = 0;
-            for (int i = 0; i < run_times; i++)
+            int length = speeds.Length;
+            int[] desirespeednums = new int[length];
+            for (int i = 0; i < length; i++)
             {
-                VissimTools.RunSingleStep();             
-                
+                desirespeednums[i] = get_DesireSpeedNumer(speeds[i]);
             }
-          //  int interval_num = (int)(run_times / (SimRes * DataCollectionInterval) * count + 1);
-            int datapoint1_vehs = VissimTools.Get_CurrentDataCollectionResult_Vehs(1);
-            //int num_lanes = VissimTools.Get_NumLaneByVehTravelTm(2);
-            flowrate = VissimTools.Get_FlowRate(datapoint1_vehs, DataCollectionInterval);
-            GC.Collect();
-            return flowrate;
+            return desirespeednums;
         }
-        public static double vissimReward(int run_times, int action) //SimPeriod * SimRes
+
+
+        //Provide initial state(flowrate) to agent
+        public static Dictionary<string, double> vissimState(int count, int run_times, int[] action) //SimPeriod * SimRes
         {
             Set_AllDesireSpeed(action);
+            double flowrate = 0.0;
+            double density = 0.0;
+            for (int i = 0; i < run_times; i++)
+            {
+                VissimTools.RunSingleStep();
+            }
+            //  int interval_num = (int)(run_times / (SimRes * DataCollectionInterval) * count + 1);
+            int datapoint1_vehs = VissimTools.Get_CurrentDataCollectionResult_Vehs(1);
+            flowrate = VissimTools.Get_FlowRate(datapoint1_vehs, DataCollectionInterval);
+
+            int num_lanes = VissimTools.Get_NumLaneByVehTravelTm(2);
+            int travelTm_vhs = Get_CurrentVehicleTravelTime_Vehs(2);
+            double distance = Get_CurrentVehicleTravelTime_DistTrav(2);
+            int time = Get_CurrentVehicleTravelTime_TravTm(2);
+            density = Get_Density(travelTm_vhs, DataCollectionInterval, time, distance, num_lanes);
+
+            Dictionary<string, double> result = new Dictionary<string, double>();
+            result.Add("flowrate", flowrate);
+            result.Add("density", density);
+
+            return result;
+        }
+
+        public static double vissimReward(int run_times, int[] actions) //SimPeriod * SimRes
+        {
+            Set_AllDesireSpeed(actions);
             double Reward = 0;
             for (int i = 0; i < run_times; i++)
             {
                 VissimTools.RunSingleStep();
             }
-            
-            int datapoint1_vehs = VissimTools.Get_CurrentDataCollectionResult_Vehs(4);
-            Reward = VissimTools.Get_FlowRate(datapoint1_vehs, DataCollectionInterval);
+
+            int datapoint4_vehs = VissimTools.Get_CurrentDataCollectionResult_Vehs(4);
+            Reward = VissimTools.Get_FlowRate(datapoint4_vehs, DataCollectionInterval);
             // int density = VissimTools.Get_Density(int num_vehs, int timeinterval, double speed, double distance, int num_lane)
-            GC.Collect();
             return Reward;
         }
 
-        public static void vissimRunFirstInterval() {
-            for (int i = 0; i < 180 * SimRes; i++) {
+        public static void vissimRunFirstInterval()
+        {
+            for (int i = 0; i < 180 * SimRes; i++)
+            {
                 VissimTools.RunSingleStep();
             }
-            GC.Collect();
 
         }
 
@@ -410,13 +393,13 @@ namespace ConsoleApplication1
             {
                 case 1:
                     return vissim.Net.Links.get_ItemByKey(6).get_AttValue("NumLanes");
-                    
+
                 case 2:
                     return vissim.Net.Links.get_ItemByKey(3).get_AttValue("NumLanes");
-                    
+
                 case 3:
                     return vissim.Net.Links.get_ItemByKey(3).get_AttValue("NumLanes");
-                    
+
             }
             return 0;
         }
@@ -512,11 +495,11 @@ namespace ConsoleApplication1
             double flowrate = num_vehs * (3600.0 / timeinterval); //  veh/h
             return flowrate;
         }
-        static public double Get_Density(int num_vehs, int timeinterval, double speed, double distance, int num_lane)
+        static public double Get_Density(int num_vehs, int timeinterval, int time, double distance, int num_lane)
         {
 
             double flowrate = num_vehs * (3600.0 / timeinterval); //  veh/h
-            double velocity = distance / speed;
+            double velocity = distance / time;
             double density = flowrate / (num_lane * velocity);
             return Math.Round(density, 0);
         }

@@ -31,10 +31,6 @@ class DDPG(object):
         self.critic = Critic(state_dim, action_dim, batch_size, lrc, tau)
         self.buffer = MemoryBuffer(buffer_size)
 
-        self.load_weights(
-                    "C:\\Users\\KRATOS\\Desktop\\workplace\\Sh_Reinforcement_Learning\\py_ddpg\\saved_model\\_LR_0.0001_actor.h5", 
-                    "C:\\Users\\KRATOS\\Desktop\\workplace\\Sh_Reinforcement_Learning\\py_ddpg\\saved_model\\_LR_0.001_critic.h5"
-                    )
         if load_weight:
             try:
                 self.load_weights(

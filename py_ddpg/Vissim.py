@@ -1,9 +1,10 @@
 import win32com.client as com
+import numpy as np
 
 class Vissim:
     vissim = com.dynamic.Dispatch('Vissim.Vissim.1100')
-    NetworkPath = "D:\School11111111111111111111111111111\Coop2019\Summer\Vissim 2\SH.inpx"
-    LayoutPath = "D:\School11111111111111111111111111111\Coop2019\Summer\Vissim 2\SH.layx"
+    NetworkPath = "C:\\Users\\KRATOS\\Desktop\\vissim_data\\SH.inpx"
+    LayoutPath = "C:\\Users\\KRATOS\\Desktop\\vissim_data\\SH.layx"
     SimPeriod = 99999
     SimRes = 5
     RandSeed = 54
@@ -127,10 +128,14 @@ class Vissim:
         time = self.get_current_vehicle_travel_time_travtm(2)
         density = self.calc_density(travelTm_vhs, self.DataCollectionInterval, time, distance, num_lanes)
 
+        """
         result = {
             "flow_rate": flow_rate,
             "density": density,
         }
+        """
+        result = np.array([flow_rate, density])
+
         return result
 
     def get_vissim_reward(self, run_times, actions):
@@ -305,4 +310,4 @@ class Vissim:
 if __name__ == '__main__':
     vissim = Vissim()
     vissim.get_vissim_state(1, 180*5, [45, 55, 60, 65, 70, 75, 80])
-"""    
+"""

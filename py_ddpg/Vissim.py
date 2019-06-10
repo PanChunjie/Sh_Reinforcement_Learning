@@ -5,6 +5,8 @@ class Vissim:
     vissim = com.dynamic.Dispatch('Vissim.Vissim.1100')
     NetworkPath = "C:\\Users\\KRATOS\\Desktop\\vissim_data\\SH.inpx"
     LayoutPath = "C:\\Users\\KRATOS\\Desktop\\vissim_data\\SH.layx"
+    #NetworkPath = "D:\School11111111111111111111111111111\Coop2019\Summer\Vissim 2\SH.inpx"
+    #LayoutPath = "D:\School11111111111111111111111111111\Coop2019\Summer\Vissim 2\SH.layx"
     SimPeriod = 99999
     SimRes = 5
     RandSeed = 54
@@ -294,13 +296,13 @@ class Vissim:
 
    
     def calc_flow_rate(self, num_vehs, timeinterval):
-        flow_rate = num_vehs * (3600.0 / timeinterval) #  veh/h
+        flow_rate = float(num_vehs) * (3600.0 / float(timeinterval)) #  veh/h
         return round(flow_rate, 2)
     
     def calc_density(self, num_vehs, timeinterval, time, distance, num_lane):
-        flow_rate = num_vehs * (3600.0 / timeinterval) # veh/h
-        velocity = distance / time
-        density = flow_rate / (num_lane * velocity)
+        flow_rate = float(num_vehs) * (3600.0 / float(timeinterval)) # veh/h
+        velocity = float(distance) / float(time)
+        density = flow_rate / (float(num_lane) * velocity)
         return round(density, 2)
 
         # </editor-fold>

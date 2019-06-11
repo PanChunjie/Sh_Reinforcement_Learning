@@ -54,10 +54,10 @@ class DDPG(object):
             critic_target[i] = rewards[i]
         return critic_target
 
-    def memorize(self, state, action, reward):
+    def memorize(self, state_old, action, reward, state_new):
         """ Store experience in memory buffer
         """
-        self.buffer.memorize(state, action, reward)
+        self.buffer.memorize(state_old, action, reward, state_new)
 
     def sample_batch(self, batch_size):
         return self.buffer.sample_batch(batch_size)
@@ -82,15 +82,18 @@ class DDPG(object):
             # Reset episode
             loss = 0
             time = 0
+            # set initial state
+            cumul_reward = 0
+            state_old = env.get_vissim_state(1, 180*5, [45, 55, 60, 65, 70, 75, 80]) #TODO: make sure states are recieved correctly
             actions, states, rewards = [], [], []
             noise = OrnsteinUhlenbeckProcess(size=self.action_dim)
+
             print("Episode: ", e, " ========================:")
 
             for t in range(self.step):
-                state = env.get_vissim_state(1, 180*5, [45, 55, 60, 65, 70, 75, 80]) #TODO: make sure states are recieved correctly
                 action = np.zeros([self.action_dim])
 
-                action_original = self.policy_action(state)
+                action_original = self.policy_action(state_old)
                 #TODO: OU function params?
 
                 noises = noise.generate(time)
@@ -101,21 +104,24 @@ class DDPG(object):
                 #action_mapping function
                 transformed_action = Transformation.convert_actions(action)
 
-                reward = env.get_vissim_reward(180*5, transformed_action) 
+                reward, state_new = env.get_vissim_reward(180*5, transformed_action) 
 
                 if (self.train_indicator):
                     # Add outputs to memory buffer
-                    self.memorize(state, action, reward)
+                    self.memorize(state_old, action, reward, state_new)
                     # Sample experience from buffer
-                    states, actions, rewards = self.sample_batch(args.batch_size)
+                    states_old, actions, rewards, states_new = self.sample_batch(args.batch_size)
                     # Predict target q-values using target networks
-                    q_values = self.critic.target_predict([states, self.actor.target_predict(states)])
+                    q_values = self.critic.target_predict([states_new, self.actor.target_predict(states_new)])
                     # Compute critic target
                     critic_target = self.bellman(rewards, q_values)
                     # Train both networks on sampled batch, update target networks
-                    self.update_models(states, actions, critic_target)
+                    self.update_models(states_old, actions, critic_target)
                     # calculate loss
-                    loss += self.critic.train_on_batch(states, actions, critic_target)
+                    loss += self.critic.train_on_batch(states_old, actions, critic_target)
+                    state_old = state_new
+                    cumul_reward += reward
+                    time += 1
 
                 print("|---> Step: ", t, " | Action: ", transformed_action, " | Reward: ", reward, " | Loss: ", loss)
 
@@ -128,7 +134,6 @@ class DDPG(object):
                     with open("criticmodel.json", "w") as outfile:
                         json.dump(critic.model.to_json(), outfile)
                     """
-                time += 1
 
     def save_weights(self, path):
         path_actor = path + '_LR_{}'.format(self.lra)

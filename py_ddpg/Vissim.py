@@ -136,9 +136,9 @@ class Vissim:
             "density": density,
         }
         """
-        result = np.array([flow_rate, density])
+        state = np.array([flow_rate, density])
 
-        return result
+        return state
 
     def get_vissim_reward(self, run_times, actions):
         self.set_all_desire_speed(actions)
@@ -148,9 +148,22 @@ class Vissim:
             self.run_single_step()
 
         datapo4_vehs = self.get_current_data_collection_result_vehs(4)
-        Reward = self.calc_flow_rate(datapo4_vehs, self.DataCollectionInterval)
 
-        return Reward
+        # get reward (discharging rate)
+        reward = self.calc_flow_rate(datapo4_vehs, self.DataCollectionInterval)
+        
+        datapo1_vehs = self.get_current_data_collection_result_vehs(1)
+        flow_rate = self.calc_flow_rate(datapo1_vehs, self.DataCollectionInterval)
+
+        num_lanes = self.get_num_lane_by_veh_travel_tm(2)
+        travelTm_vhs = self.get_current_vehicle_travel_time_vehs(2)
+        distance = self.get_current_vehicle_travel_time_disttrav(2)
+        time = self.get_current_vehicle_travel_time_travtm(2)
+        density = self.calc_density(travelTm_vhs, self.DataCollectionInterval, time, distance, num_lanes)
+
+        # set state (flow rate, density of [SH, Acc])
+        state = np.array([flow_rate, density])
+        return reward, state
 
 
     def run_one_interval(self):

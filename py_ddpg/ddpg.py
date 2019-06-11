@@ -135,6 +135,10 @@ class DDPG(object):
                         json.dump(critic.model.to_json(), outfile)
                     """
 
+            print("")
+            print("Accumulated Reward: ", cumul_reward)
+            print("")
+
     def save_weights(self, path):
         path_actor = path + '_LR_{}'.format(self.lra)
         path_critic = path + '_LR_{}'.format(self.lrc)

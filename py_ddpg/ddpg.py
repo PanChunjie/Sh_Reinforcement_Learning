@@ -36,7 +36,7 @@ class DDPG(object):
         self.buffer = MemoryBuffer(buffer_size)
         # !: weights folder need to be specified & ensure only one set of A&C weights are in this folder
         self.weights_dir_path = os.getcwd() + r"\saved_model\*.h5"
-        
+
         if load_weight:
             try:
                 weights_actor_path = ""
@@ -64,18 +64,21 @@ class DDPG(object):
         """
         return self.actor.predict(s)[0]
 
-    def bellman(self, rewards, q_values):
+    def bellman(self, rewards, q_values, dones):
         """ Use the Bellman Equation to compute the critic target (one action only)
         """
         critic_target = np.asarray(q_values)
         for i in range(q_values.shape[0]):
-            critic_target[i] = rewards[i]
+            if dones[i]:
+                critic_target[i] = rewards[i]
+            else:
+                critic_target[i] = rewards[i] + self.gamma * q_values[i]
         return critic_target
 
-    def memorize(self, state_old, action, reward, state_new):
+    def memorize(self, state_old, action, reward, done, state_new):
         """ Store experience in memory buffer
         """
-        self.buffer.memorize(state_old, action, reward, state_new)
+        self.buffer.memorize(state_old, action, reward, done, state_new)
 
     def sample_batch(self, batch_size):
         return self.buffer.sample_batch(batch_size)
@@ -102,7 +105,10 @@ class DDPG(object):
             time = 0
             # set initial state
             cumul_reward = 0
+            done = False
+
             state_old = env.get_vissim_state(1, 180*5, [45, 55, 60, 65, 70, 75, 80]) #TODO: make sure states are recieved correctly
+            
             actions, states, rewards = [], [], []
             noise = OrnsteinUhlenbeckProcess(size=self.action_dim)
 
@@ -124,15 +130,20 @@ class DDPG(object):
 
                 reward, state_new = env.get_vissim_reward(180*5, transformed_action)
 
+                # TODO: if we know what the optimal discharging rate, then we set that as done
+                if t == self.step - 1: #we consider the manually setted last step as done
+                    done = True
+
+                # ======================================================================================= Training section
                 if (self.train_indicator):
                     # Add outputs to memory buffer
-                    self.memorize(state_old, action, reward, state_new)
+                    self.memorize(state_old, action, reward, done, state_new)
                     # Sample experience from buffer
-                    states_old, actions, rewards, states_new = self.sample_batch(args.batch_size)
+                    states_old, actions, rewards, dones, states_new = self.sample_batch(args.batch_size)
                     # Predict target q-values using target networks
                     q_values = self.critic.target_predict([states_new, self.actor.target_predict(states_new)])
                     # Compute critic target
-                    critic_target = self.bellman(rewards, q_values)
+                    critic_target = self.bellman(rewards, q_values, dones)
                     # Train both networks on sampled batch, update target networks
                     self.update_models(states_old, actions, critic_target)
                     # calculate loss
@@ -140,9 +151,13 @@ class DDPG(object):
                     state_old = state_new
                     cumul_reward += reward
                     time += 1
+                # =======================================================================================                     
 
+                # ======================================================================================= report
                 print("|---> Step: ", t, " | Action: ", transformed_action, " | Reward: ", reward, " | Loss: ", loss)
+                # =======================================================================================                 
 
+                # ======================================================================================= save model
                 if np.mod(e, 10) == 0:
                     print("====================> Saving model...")
                     self.save_weights("./saved_model/")
@@ -152,6 +167,7 @@ class DDPG(object):
                     with open("criticmodel.json", "w") as outfile:
                         json.dump(critic.model.to_json(), outfile)
                     """
+                # ======================================================================================= save model
 
             print("")
             print("*-------------------------------------------------*")
@@ -160,6 +176,7 @@ class DDPG(object):
             print("*-------------------------------------------------*")
             print("")
 
+            # garbage recycling
             gc.collect()
 
     def save_weights(self, path):

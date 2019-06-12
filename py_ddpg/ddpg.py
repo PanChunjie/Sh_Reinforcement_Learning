@@ -1,5 +1,8 @@
 import sys
 import numpy as np
+import datetime
+import os
+import glob
 
 from actor import Actor
 from critic import Critic
@@ -30,13 +33,28 @@ class DDPG(object):
         self.actor = Actor(state_dim, action_dim, batch_size, lra, tau)
         self.critic = Critic(state_dim, action_dim, batch_size, lrc, tau)
         self.buffer = MemoryBuffer(buffer_size)
+        self.weights_dir_path = os.getcwd() + "/Sh_Reinforcement_Learning/py_ddpg/saved_model/*.h5"
 
         if load_weight:
             try:
+                weights_actor = ""
+                weights_critic = ""
+                weights_file_path = glob.glob(weights_dir_path)
+
+                for file in weights_file_path:
+                    if file.find("actor") < 0:
+                        weights_critic = file
+                    if file.find("critic") < 0:
+                        weights_actor = file
+                self.load_weights(weights_actor, weights_critic)
+
+                """       
                 self.load_weights(
                     "C:\\Users\\KRATOS\\Desktop\\workplace\\Sh_Reinforcement_Learning\\py_ddpg\\saved_model\\_LR_0.0001_actor.h5", 
                     "C:\\Users\\KRATOS\\Desktop\\workplace\\Sh_Reinforcement_Learning\\py_ddpg\\saved_model\\_LR_0.001_critic.h5"
                     )
+                """
+
                 print("Actor-Critic Models are loaded with weights...")
             except:
                 print("Weights are failed to be loaded, please check weights loading path...")
@@ -140,8 +158,10 @@ class DDPG(object):
             print("")
 
     def save_weights(self, path):
-        path_actor = path + '_LR_{}'.format(self.lra)
-        path_critic = path + '_LR_{}'.format(self.lrc)
+        t = datetime.datetime.now()
+        time = "_" + str(t.date()) + "_" + str(t.hour) + "h-" + str(t.minute) + "m"
+        path_actor = path + '_LR_{}'.format(self.lra) + time
+        path_critic = path + '_LR_{}'.format(self.lrc) + time
         self.actor.save(path_actor)
         self.critic.save(path_critic)
 

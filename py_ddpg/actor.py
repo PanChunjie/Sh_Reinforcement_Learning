@@ -82,7 +82,7 @@ class Actor:
         action_gdts = K.placeholder(shape=(None, self.act_dim))
         params_grad = tf.gradients(self.model.output, self.model.trainable_weights, -action_gdts)
         grads = zip(params_grad, self.model.trainable_weights)
-        return K.function([self.model.input, action_gdts], [tf.train.AdamOptimizer(self.lr).apply_gradients(grads)])
+        return K.function([self.model.input, action_gdts], [tf.train.AdamOptimizer(self.lr).apply_gradients(grads)][1:])
 
     def save(self, path):
         self.model.save_weights(path + '_actor.h5', overwrite=True)

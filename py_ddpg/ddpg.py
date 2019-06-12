@@ -92,7 +92,7 @@ class DDPG(object):
         actions = self.actor.model.predict(states)
         grads = self.critic.gradients(states, actions)
         # Train actor
-        self.actor.train(states, actions, np.array(grads).reshape((-1, self.act_dim)))
+        self.actor.train(states, actions, np.array(grads).reshape((-1, self.action_dim)))
         # Transfer weights to target networks at rate Tau
         self.actor.transfer_weights()
         self.critic.transfer_weights()

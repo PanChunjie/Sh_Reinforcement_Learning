@@ -3,6 +3,7 @@ import numpy as np
 import datetime
 import os
 import glob
+import gc
 
 from actor import Actor
 from critic import Critic
@@ -154,8 +155,13 @@ class DDPG(object):
                     """
 
             print("")
-            print("Accumulated Reward: ", cumul_reward)
+            print("*-------------------------------------------------*")
+            print("Accumulated Reward: " + str(cumul_reward))
+            print("Average Accumulated Reward: " + str(cumul_reward / self.step) )
+            print("*-------------------------------------------------*")            
             print("")
+
+            gc.collect()
 
     def save_weights(self, path):
         t = datetime.datetime.now()

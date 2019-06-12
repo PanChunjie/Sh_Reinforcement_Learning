@@ -34,31 +34,30 @@ class DDPG(object):
         self.actor = Actor(state_dim, action_dim, batch_size, lra, tau)
         self.critic = Critic(state_dim, action_dim, batch_size, lrc, tau)
         self.buffer = MemoryBuffer(buffer_size)
-        self.weights_dir_path = os.getcwd() + "/Sh_Reinforcement_Learning/py_ddpg/saved_model/*.h5"
-
+        # !: weights folder need to be specified & ensure only one set of A&C weights are in this folder
+        self.weights_dir_path = os.getcwd() + r"\saved_model\*.h5"
+        
         if load_weight:
             try:
-                weights_actor = ""
-                weights_critic = ""
-                weights_file_path = glob.glob(weights_dir_path)
+                weights_actor_path = ""
+                weights_critic_path = ""
+                weights_file_path = glob.glob(self.weights_dir_path)
 
-                for file in weights_file_path:
-                    if file.find("actor") < 0:
-                        weights_critic = file
-                    if file.find("critic") < 0:
-                        weights_actor = file
-                self.load_weights(weights_actor, weights_critic)
+                for file_path in weights_file_path:
+                    if file_path.find("actor") < 0:
+                        weights_critic_path = file_path
+                    if file_path.find("critic") < 0:
+                        weights_actor_path = file_path
 
-                """       
-                self.load_weights(
-                    "C:\\Users\\KRATOS\\Desktop\\workplace\\Sh_Reinforcement_Learning\\py_ddpg\\saved_model\\_LR_0.0001_actor.h5", 
-                    "C:\\Users\\KRATOS\\Desktop\\workplace\\Sh_Reinforcement_Learning\\py_ddpg\\saved_model\\_LR_0.001_critic.h5"
-                    )
-                """
+                self.load_weights(weights_actor_path, weights_critic_path)
 
+                print("")
                 print("Actor-Critic Models are loaded with weights...")
+                print("")
             except:
+                print("")
                 print("Weights are failed to be loaded, please check weights loading path...")
+                print("")
 
     def policy_action(self, s):
         """ Use the actor to predict value
@@ -123,7 +122,7 @@ class DDPG(object):
                 #action_mapping function
                 transformed_action = Transformation.convert_actions(action)
 
-                reward, state_new = env.get_vissim_reward(180*5, transformed_action) 
+                reward, state_new = env.get_vissim_reward(180*5, transformed_action)
 
                 if (self.train_indicator):
                     # Add outputs to memory buffer
@@ -158,7 +157,7 @@ class DDPG(object):
             print("*-------------------------------------------------*")
             print("Accumulated Reward: " + str(cumul_reward))
             print("Average Accumulated Reward: " + str(cumul_reward / self.step) )
-            print("*-------------------------------------------------*")            
+            print("*-------------------------------------------------*")
             print("")
 
             gc.collect()

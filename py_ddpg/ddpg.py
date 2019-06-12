@@ -139,7 +139,7 @@ class DDPG(object):
                     # Add outputs to memory buffer
                     self.memorize(state_old, action, reward, done, state_new)
                     # Sample experience from buffer
-                    states_old, actions, rewards, dones, states_new = self.sample_batch(args.batch_size)
+                    states_old, actions, rewards, dones, states_new = self.sample_batch(self.batch_size)
                     # Predict target q-values using target networks
                     q_values = self.critic.target_predict([states_new, self.actor.target_predict(states_new)])
                     # Compute critic target

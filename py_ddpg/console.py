@@ -14,7 +14,7 @@ LRC = 0.001  #Lerning rate for Critic
 
 action_dim = 7  #7 speed limit control actions
 state_dim = 2   #TODO: currently 2, later will be 8, 1 for SH_flowrate, 7 for ACC_local_densities
-indicator = 0
+indicator = 1
 step_size = 10
 episode = 2000
 

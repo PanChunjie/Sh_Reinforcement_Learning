@@ -101,13 +101,10 @@ class DDPG(object):
         # First, gather experience
         for e in range(self.episode):
             # Reset episode
-            loss = 0
             # set initial state
-            cumul_reward = 0
+            loss, cumul_reward, cumul_loss = 0, 0, 0
             done = False
-
             state_old = env.get_vissim_state(1, 180*5, [45, 55, 60, 65, 70, 75, 80]) #TODO: make sure states are recieved correctly
-            
             actions, states, rewards = [], [], []
 
             print("Episode: ", e, " ========================:")
@@ -148,31 +145,32 @@ class DDPG(object):
                     # Train both networks on sampled batch, update target networks
                     self.update_models(states_old, actions, critic_target)
                     # calculate loss
-                    loss += self.critic.train_on_batch(states_old, actions, critic_target)
+                    loss = self.critic.train_on_batch(states_old, actions, critic_target)
                     state_old = state_new
                     cumul_reward += reward
+                    cumul_loss += loss
                 # =======================================================================================                     
 
                 # ======================================================================================= report
                 print("|---> Step: ", t, " | Action: ", transformed_action, " | Reward: ", reward, " | Loss: ", loss)
                 # =======================================================================================                 
 
-                # ======================================================================================= save model
-                if np.mod(e, 10) == 0:
-                    print("====================> Saving model...")
-                    self.save_weights("./saved_model/")
-                    """
-                    with open("actormodel.json", "w") as outfile:
-                        json.dump(actor.model.to_json(), outfile)
-                    with open("criticmodel.json", "w") as outfile:
-                        json.dump(critic.model.to_json(), outfile)
-                    """
-                # ======================================================================================= save model
+            # ======================================================================================= save model
+            if np.mod(e, 10) == 0:
+                print("====================> Saving model...")
+                self.save_weights("./saved_model/")
+                """
+                with open("actormodel.json", "w") as outfile:
+                    json.dump(actor.model.to_json(), outfile)
+                with open("criticmodel.json", "w") as outfile:
+                    json.dump(critic.model.to_json(), outfile)
+                """
+            # ======================================================================================= save model
 
             print("")
             print("*-------------------------------------------------*")
-            print("Accumulated Reward: " + str(cumul_reward))
             print("Average Accumulated Reward: " + str(cumul_reward / self.step) )
+            print("Average Accumulated Loss: " + str(cumul_loss / self.step) )
             print("*-------------------------------------------------*")
             print("")
 

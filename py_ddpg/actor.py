@@ -84,7 +84,8 @@ class Actor:
         grads = zip(params_grad, self.model.trainable_weights)
 
         inputs = [self.model.input, action_gdts]
-        outputs = []
+        #outputs = []
+        outputs = K.placeholder(shape=(None, None))
         updates = [tf.train.AdamOptimizer(self.lr).apply_gradients(grads)]#[1:]
         return K.function(inputs = inputs, outputs = outputs, updates = updates)
 

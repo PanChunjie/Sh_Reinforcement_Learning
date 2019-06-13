@@ -12,6 +12,10 @@ class Transformation(object):
 
         for a in actions:
             action = int((a+1) / mapping_size)
-            speed_limits.append(int(30 + action * 5))
+            speed = int(30 + action * 5)
+
+            if speed > 120:
+                speed = 120
+            speed_limits.append(speed)
 
         return speed_limits

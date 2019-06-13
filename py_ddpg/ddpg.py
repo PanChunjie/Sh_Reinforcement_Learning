@@ -7,7 +7,7 @@ import gc
 
 from actor import Actor
 from critic import Critic
-from utils.networks import tfSummary, OrnsteinUhlenbeckProcess
+from utils.networks import tfSummary, clip, OrnsteinUhlenbeckProcess
 from utils.memory_buffer import MemoryBuffer
 
 from Transformation import Transformation
@@ -102,7 +102,6 @@ class DDPG(object):
         for e in range(self.episode):
             # Reset episode
             loss = 0
-            time = 0
             # set initial state
             cumul_reward = 0
             done = False
@@ -110,20 +109,21 @@ class DDPG(object):
             state_old = env.get_vissim_state(1, 180*5, [45, 55, 60, 65, 70, 75, 80]) #TODO: make sure states are recieved correctly
             
             actions, states, rewards = [], [], []
-            noise = OrnsteinUhlenbeckProcess(size=self.action_dim)
 
             print("Episode: ", e, " ========================:")
 
             for t in range(self.step):
-                action = np.zeros([self.action_dim])
-
                 action_original = self.policy_action(state_old)
+                
                 #TODO: OU function params?
+                noise = OrnsteinUhlenbeckProcess(x0=action_original, size=self.action_dim)
 
-                noises = noise.generate(time)
+                # action = action_orig + noise
+                action = noise.apply_ou(t)
 
-                for i in range(0,7):
-                    action[i] = action_original[i] + self.train_indicator * noises[i]
+                # adjust too-low or too-high action
+                for a in action:
+                    a = clip(a, -1, 1)
 
                 #action_mapping function
                 transformed_action = Transformation.convert_actions(action)
@@ -150,7 +150,6 @@ class DDPG(object):
                     loss += self.critic.train_on_batch(states_old, actions, critic_target)
                     state_old = state_new
                     cumul_reward += reward
-                    time += 1
                 # =======================================================================================                     
 
                 # ======================================================================================= report

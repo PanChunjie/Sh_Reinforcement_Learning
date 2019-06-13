@@ -85,7 +85,7 @@ class Actor:
 
         inputs = [self.model.input, action_gdts]
         outputs = []
-        updates = [tf.train.AdamOptimizer(self.lr).apply_gradients(grads)][1:]
+        updates = [tf.train.AdamOptimizer(self.lr).apply_gradients(grads)]#[1:]
         return K.function(inputs = inputs, outputs = outputs, updates = updates)
 
     def save(self, path):

@@ -3,14 +3,14 @@ import numpy as np
 
 class Vissim:
     vissim = com.dynamic.Dispatch('Vissim.Vissim.1100')
-    NetworkPath = "C:\\Users\\KRATOS\\Desktop\\vissim_data\\SH.inpx"
-    LayoutPath = "C:\\Users\\KRATOS\\Desktop\\vissim_data\\SH.layx"
-    #NetworkPath = "D:\School11111111111111111111111111111\Coop2019\Summer\Vissim 2\SH.inpx"
-    #LayoutPath = "D:\School11111111111111111111111111111\Coop2019\Summer\Vissim 2\SH.layx"
+    #NetworkPath = "C:\\Users\\KRATOS\\Desktop\\vissim_data\\SH.inpx"
+    #LayoutPath = "C:\\Users\\KRATOS\\Desktop\\vissim_data\\SH.layx"
+    NetworkPath = "D:\School11111111111111111111111111111\Coop2019\Summer\Vissim 2\SH.inpx"
+    LayoutPath = "D:\School11111111111111111111111111111\Coop2019\Summer\Vissim 2\SH.layx"
     SimPeriod = 99999
     SimRes = 5
     RandSeed = 54
-    DataCollectionInterval = 180
+    DataCollectionInterval = 60
     volume = 5000
 
     def __init__(self):
@@ -124,19 +124,14 @@ class Vissim:
         datapo1_vehs = self.get_current_data_collection_result_vehs(1)
         flow_rate = self.calc_flow_rate(datapo1_vehs, self.DataCollectionInterval)
 
-        num_lanes = self.get_num_lane_by_veh_travel_tm(2)
-        travelTm_vhs = self.get_current_vehicle_travel_time_vehs(2)
-        distance = self.get_current_vehicle_travel_time_disttrav(2)
-        time = self.get_current_vehicle_travel_time_travtm(2)
-        density = self.calc_density(travelTm_vhs, self.DataCollectionInterval, time, distance, num_lanes)
+        density1 = self.get_current_density(5)
+        density2 = self.get_current_density(6)
+        density3 = self.get_current_density(7)
+        density4 = self.get_current_density(8)
+        density5 = self.get_current_density(9)
+        density6 = self.get_current_density(10)
 
-        """
-        result = {
-            "flow_rate": flow_rate,
-            "density": density,
-        }
-        """
-        state = np.array([flow_rate, density])
+        state = np.array([flow_rate, density1, density2, density3, density4, density5, density6])
 
         return state
 
@@ -147,22 +142,22 @@ class Vissim:
         for i in range(0, run_times):
             self.run_single_step()
 
-        datapo4_vehs = self.get_current_data_collection_result_vehs(4)
-
         # get reward (discharging rate)
+        datapo4_vehs = self.get_current_data_collection_result_vehs(4)
         reward = self.calc_flow_rate(datapo4_vehs, self.DataCollectionInterval)
         
         datapo1_vehs = self.get_current_data_collection_result_vehs(1)
         flow_rate = self.calc_flow_rate(datapo1_vehs, self.DataCollectionInterval)
 
-        num_lanes = self.get_num_lane_by_veh_travel_tm(2)
-        travelTm_vhs = self.get_current_vehicle_travel_time_vehs(2)
-        distance = self.get_current_vehicle_travel_time_disttrav(2)
-        time = self.get_current_vehicle_travel_time_travtm(2)
-        density = self.calc_density(travelTm_vhs, self.DataCollectionInterval, time, distance, num_lanes)
+        density1 = self.get_current_density(5)
+        density2 = self.get_current_density(6)
+        density3 = self.get_current_density(7)
+        density4 = self.get_current_density(8)
+        density5 = self.get_current_density(9)
+        density6 = self.get_current_density(10)
 
         # set state (flow rate, density of [SH, Acc])
-        state = np.array([flow_rate, density])
+        state = np.array([flow_rate, density1, density2, density3, density4,density5,density6])
         return reward, state
 
 
@@ -226,19 +221,14 @@ class Vissim:
     def get_link_vehs_by_type(self, lkn):
         return self.vissim.Net.Links.ItemByKey(lkn).Vehs.GetMultiAttValues("VehType")
     
-    def get_num_lane_by_veh_travel_tm(self, vttId):
-    
-        if vttId == 1:
-            return self.vissim.Net.Links.ItemByKey(6).AttValue("NumLanes")
-        if vttId == 2:
-            return self.vissim.Net.Links.ItemByKey(3).AttValue("NumLanes")
-        if vttId == 3:
-            return self.vissim.Net.Links.ItemByKey(3).AttValue("NumLanes")
-        return 0
+    def get_lanes_by_linkid(self, linkid):
+        return self.vissim.Net.Links.ItemByKey(linkid).AttValue("NumLanes")
+
 
     # </editor-fold>
 
     # <editor-fold desc = "Data Collection Result"
+
     def get_current_data_collection_result_vehs(self, data_collection_group_id):
         data_collection_measurement = self.vissim.Net.DataCollectionMeasurements
         return data_collection_measurement.ItemByKey(data_collection_group_id).AttValue("Vehs(Current, Last, All)")
@@ -260,6 +250,7 @@ class Vissim:
         data_collection_measurement = self.vissim.Net.DataCollectionMeasurements
         attribute = "SpeedAvgArith(Current," + timeInterval + ", All)"
         return data_collection_measurement.ItemByKey(data_collection_group_id).AttValue(attribute)
+
 
         # </editor-fold>
 
@@ -295,6 +286,18 @@ class Vissim:
         traveltimes = self.vissim.Net.VehicleTravelTimeMeasurements
         return traveltimes.ItemByKey(vttId).AttValue("Dist")
 
+    def get_vehicle_tracel_time_startlink(self, vttId):
+        traveltimes = self.vissim.Net.VehicleTravelTimeMeasurements
+        return traveltimes.ItemByKey(vttId).AttValue("StartLink")
+
+    def get_current_density(self, vttid):
+        start_link = self.get_vehicle_tracel_time_startlink(vttid)
+        num_lanes = self.get_lanes_by_linkid(start_link)
+        travelTm_vhs = self.get_current_vehicle_travel_time_vehs(vttid)
+        distance = self.get_current_vehicle_travel_time_disttrav(vttid)
+        time = self.get_current_vehicle_travel_time_travtm(vttid)
+        density = self.calc_density(travelTm_vhs, self.DataCollectionInterval, time, distance, num_lanes)
+        return density
         # </editor-fold>
 
     # <edit-fold des = "calculation functions"

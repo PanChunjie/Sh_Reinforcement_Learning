@@ -39,6 +39,10 @@ class Critic:
         self.action_grads = K.function([self.model.input[0], self.model.input[1]], K.gradients(self.model.output, [self.model.input[1]]))
 
     def network(self):
+        """
+        S -> w1 -> h1 -\
+        A -> a1 -------- => h2 -> h3 -> V
+        """
         S = Input(shape=[self.state_dim])
         A = Input(shape=[self.action_dim])
         w1 = Dense(HIDDEN1_UNITS, activation='relu')(S)
@@ -59,11 +63,19 @@ class Critic:
 
     def target_predict(self, inp):
         """ Predict Q-Values using the target network
+
+        inp = [state, actions]
+        state.shape = (1, state_dim)
+        actions.shape = (1, action_dim)
         """
         return self.target_model.predict(inp)
 
     def train_on_batch(self, states, actions, critic_target):
         """ Train the critic network on batch of sampled experience
+
+        states.shape = (batch_size, state_dim)
+        actions.shape = (batch_size, action_dim)
+        critic_target.shape = (batch_size, action_dim) # q_values
         """
         return self.model.train_on_batch([states, actions], critic_target)
 

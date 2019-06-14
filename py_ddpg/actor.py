@@ -37,6 +37,15 @@ class Actor:
         self.adam_optimizer = self.optimizer()
 
     def network(self):
+        """
+        S -> h0 -> h1 -> spd_1 -|
+                    | -> spd_2 -|
+                    | -> spd_3 -|
+                    | -> spd_4 -|
+                    | -> spd_5 -|
+                    | -> spd_6 -|
+                    | -> spd_7 -| => V
+        """
         #S = Input(shape =(self.env_dim,))
         S = Input(shape=[self.env_dim])  
         h0 = Dense(HIDDEN1_UNITS, activation='relu')(S)
@@ -55,11 +64,16 @@ class Actor:
 
     def predict(self, state):
         """ Action prediction
+
+        model.predict(state)
+        state.shape = (1, state_dim)
         """
         return self.model.predict(np.expand_dims(state, axis=0))
 
     def target_predict(self, inp):
         """ Action prediction (target network)
+
+        inp.shape = (1, state_dim)
         """
         return self.target_model.predict(inp)
 

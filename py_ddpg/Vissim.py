@@ -3,10 +3,10 @@ import numpy as np
 
 class Vissim:
     vissim = com.dynamic.Dispatch('Vissim.Vissim.1100')
-    #NetworkPath = "C:\\Users\\KRATOS\\Desktop\\vissim_data\\SH.inpx"
-    #LayoutPath = "C:\\Users\\KRATOS\\Desktop\\vissim_data\\SH.layx"
-    NetworkPath = "D:\School11111111111111111111111111111\Coop2019\Summer\Vissim 2\SH.inpx"
-    LayoutPath = "D:\School11111111111111111111111111111\Coop2019\Summer\Vissim 2\SH.layx"
+    NetworkPath = "C:\\Users\\KRATOS\\Desktop\\vissim_data\\SH.inpx"
+    LayoutPath = "C:\\Users\\KRATOS\\Desktop\\vissim_data\\SH.layx"
+    #NetworkPath = "D:\School11111111111111111111111111111\Coop2019\Summer\Vissim 2\SH.inpx"
+    #LayoutPath = "D:\School11111111111111111111111111111\Coop2019\Summer\Vissim 2\SH.layx"
     SimPeriod = 99999
     SimRes = 5
     RandSeed = 54

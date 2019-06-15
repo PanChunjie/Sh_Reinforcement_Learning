@@ -9,6 +9,7 @@ from actor import Actor
 from critic import Critic
 from utils.networks import tfSummary, clip, OrnsteinUhlenbeckProcess
 from utils.memory_buffer import MemoryBuffer
+from utils.report import Report
 
 from Transformation import Transformation
 
@@ -98,6 +99,7 @@ class DDPG(object):
         self.critic.transfer_weights()
 
     def run(self, env):
+        report = Report()
         # First, gather experience
         for e in range(self.episode):
             # Reset episode
@@ -153,6 +155,7 @@ class DDPG(object):
 
                 # ======================================================================================= report
                 print("|---> Step: ", t, " | Action: ", transformed_action, " | Reward: ", reward, " | Loss: ", loss)
+                report.updateReport([str(e), str(t), str(reward), str(loss)])
                 # =======================================================================================                 
 
             # ======================================================================================= save model
@@ -169,8 +172,11 @@ class DDPG(object):
 
             print("")
             print("*-------------------------------------------------*")
+            t = datetime.datetime.now()
+            time = str(t.date()) + "_" + str(t.hour) + "h-" + str(t.minute) + "m"
             print("Average Accumulated Reward: " + str(cumul_reward / self.step) )
             print("Average Accumulated Loss: " + str(cumul_loss / self.step) )
+            report.updateReport([str(e), time, str(cumul_reward / self.step), str(cumul_loss / self.step)])
             print("*-------------------------------------------------*")
             print("")
 

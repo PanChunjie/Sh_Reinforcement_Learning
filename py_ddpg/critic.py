@@ -15,7 +15,7 @@ from keras.optimizers import Adam
 from keras.layers import Input, Dense, concatenate, LSTM, Reshape, BatchNormalization, Lambda, Flatten, add
 
 
-scalar = 3
+scalar = 7
 HIDDEN1_UNITS = 100 * scalar
 HIDDEN2_UNITS = 100 * 2 * scalar
 

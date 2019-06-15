@@ -19,7 +19,7 @@ from keras.layers import Dense, Flatten, Input, merge, Lambda
 from keras.optimizers import Adam
 """
 
-scalar = 3
+scalar = 7
 HIDDEN1_UNITS = 100 * scalar
 HIDDEN2_UNITS = 100 * 2 * scalar
 
@@ -27,8 +27,8 @@ class Actor:
     """ Actor Network for the DDPG Algorithm
     """
     def __init__(self, inp_dim, out_dim, batch_size, lr, tau):
-        self.env_dim = inp_dim
-        self.act_dim = out_dim
+        self.state_dim = inp_dim
+        self.action_dim = out_dim
         self.batch_size = batch_size
         self.tau = tau
         self.lr = lr
@@ -47,7 +47,7 @@ class Actor:
                     | -> spd_7 -| => V
         """
         #S = Input(shape =(self.env_dim,))
-        S = Input(shape=[self.env_dim])  
+        S = Input(shape=[self.state_dim])  
         h0 = Dense(HIDDEN1_UNITS, activation='relu')(S)
         h1 = Dense(HIDDEN2_UNITS, activation='relu')(h0)
         spd_1 = Dense(1, activation='tanh', kernel_initializer=RandomUniform())(h1)
@@ -93,7 +93,7 @@ class Actor:
     def optimizer(self):
         """ Actor Optimizer
         """
-        action_gdts = K.placeholder(shape=(None, self.act_dim))
+        action_gdts = K.placeholder(shape=(None, self.action_dim))
         params_grad = tf.gradients(self.model.output, self.model.trainable_weights, -action_gdts)
         grads = zip(params_grad, self.model.trainable_weights)
 

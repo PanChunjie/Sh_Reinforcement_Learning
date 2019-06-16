@@ -155,7 +155,7 @@ class DDPG(object):
 
                 # ======================================================================================= report
                 print("|---> Step: ", t, " | Action: ", transformed_action, " | Reward: ", reward, " | Loss: ", loss)
-                report.updateReport([str(e), str(t), str(reward), str(loss)])
+                report.updateReport(r"\report\report.csv", [str(e), str(t), str(reward), str(loss)])
                 # =======================================================================================                 
 
             # ======================================================================================= save model
@@ -176,7 +176,7 @@ class DDPG(object):
             time = str(t.date()) + "_" + str(t.hour) + "h-" + str(t.minute) + "m"
             print("Average Accumulated Reward: " + str(cumul_reward / self.step) )
             print("Average Accumulated Loss: " + str(cumul_loss / self.step) )
-            report.updateReport([str(e), time, str(cumul_reward / self.step), str(cumul_loss / self.step)])
+            report.updateReport(r"\report\episode_report.csv", [str(e), time, str(cumul_reward / self.step), str(cumul_loss / self.step)])
             print("*-------------------------------------------------*")
             print("")
 

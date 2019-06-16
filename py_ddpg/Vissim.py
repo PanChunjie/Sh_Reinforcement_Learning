@@ -24,7 +24,7 @@ class Vissim:
         self.vissim.ResumeUpdateGUI()
 
     def set_w99cc1distr(self, value):
-        self.vissim.Net.DrivingBehaviors.ItemByKey(1).SetAttValue("W99cc1Distr", value)
+        self.vissim.Net.DrivingBehaviors.ItemByKey(3).SetAttValue("W99cc1Distr", value)
 
     def set_vehicle_input(self, volume):
         self.vissim.Net.VehicleInputs.ItemByKey(1).SetAttValue("Volume(1)", volume)

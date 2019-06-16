@@ -14,10 +14,19 @@ from keras.models import Model
 from keras.optimizers import Adam
 from keras.layers import Input, Dense, concatenate, LSTM, Reshape, BatchNormalization, Lambda, Flatten, add
 
-
+# -------------------------------------- set 1
+"""
 scalar = 7
-HIDDEN1_UNITS = 100 * scalar
-HIDDEN2_UNITS = 100 * 2 * scalar
+multiplier = 100
+HIDDEN1_UNITS = multiplier * scalar
+HIDDEN2_UNITS = multiplier * 2 * scalar
+"""
+# -------------------------------------- set 2
+scalar = 14
+multiplier = 1
+HIDDEN1_UNITS = multiplier * scalar
+HIDDEN2_UNITS = multiplier * 2 * scalar
+
 
 class Critic:
     """ Critic for the DDPG Algorithm, Q-Value function approximator

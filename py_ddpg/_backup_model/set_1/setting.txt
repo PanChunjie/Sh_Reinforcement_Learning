@@ -1,0 +1,26 @@
+# -------------------------------------- ddpg.py
+BUFFER_SIZE = 20000
+BATCH_SIZE = 32
+GAMMA = 0.99
+TAU = 0.001
+
+LRA = 0.0001 #Learning rate for Actor
+LRC = 0.001  #Lerning rate for Critic
+
+action_dim = 7  #7 speed limit control actions
+state_dim = 7   #TODO: currently 2, later will be 8, 1 for SH_flowrate, 7 for ACC_local_densities
+indicator = 1
+step_size = 10
+episode = 2000
+
+# -------------------------------------- actor.py
+scalar = 7
+multiplier = 100
+HIDDEN1_UNITS = multiplier * scalar
+HIDDEN2_UNITS = multiplier * 2 * scalar
+
+# -------------------------------------- critic.py
+scalar = 7
+multiplier = 100
+HIDDEN1_UNITS = multiplier * scalar
+HIDDEN2_UNITS = multiplier * 2 * scalar

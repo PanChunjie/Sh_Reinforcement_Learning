@@ -88,7 +88,7 @@ class DDPG(object):
         """ Update actor and critic networks from sampled experience
         """
         # Train critic
-        self.critic.train_on_batch(states, actions, critic_target)
+        loss = self.critic.train_on_batch(states, actions, critic_target)
         # Q-Value Gradients under Current Policy
         actions = self.actor.model.predict(states)
         grads = self.critic.gradients(states, actions)
@@ -97,6 +97,7 @@ class DDPG(object):
         # Transfer weights to target networks at rate Tau
         self.actor.transfer_weights()
         self.critic.transfer_weights()
+        return loss
 
     def run(self, env):
         report = Report()
@@ -149,9 +150,8 @@ class DDPG(object):
                     # Compute critic target
                     critic_target = self.bellman(rewards, q_values, dones)
                     # Train both networks on sampled batch, update target networks
-                    self.update_models(states_old, actions, critic_target)
-                    # calculate loss
-                    loss = self.critic.train_on_batch(states_old, actions, critic_target)
+                    loss = self.update_models(states_old, actions, critic_target)
+
                     state_old = state_new
                     cumul_reward += reward
                     cumul_loss += loss

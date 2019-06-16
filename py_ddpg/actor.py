@@ -20,18 +20,19 @@ from keras.optimizers import Adam
 """
 
 # -------------------------------------- set 1
-"""
+
 scalar = 7
 multiplier = 100
 HIDDEN1_UNITS = multiplier * scalar
 HIDDEN2_UNITS = multiplier * 2 * scalar
-"""
+
 # -------------------------------------- set 2
+"""
 scalar = 7
 multiplier = 1
 HIDDEN1_UNITS = multiplier * scalar
 HIDDEN2_UNITS = multiplier * 2 * scalar
-
+"""
 
 class Actor:
     """ Actor Network for the DDPG Algorithm

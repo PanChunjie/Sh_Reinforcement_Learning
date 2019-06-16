@@ -5,7 +5,7 @@ from Vissim import Vissim
 env = Vissim()
 
 # -------------------------------------- set 1
-"""
+
 BUFFER_SIZE = 20000
 BATCH_SIZE = 32
 GAMMA = 0.99
@@ -19,9 +19,10 @@ state_dim = 7   #TODO: currently 2, later will be 8, 1 for SH_flowrate, 7 for AC
 indicator = 1
 step_size = 10
 episode = 2000
-"""
+
 
 # -------------------------------------- set 2
+"""
 BUFFER_SIZE = 20000
 BATCH_SIZE = 32
 GAMMA = 0.9
@@ -35,7 +36,7 @@ state_dim = 7   #TODO: currently 2, later will be 8, 1 for SH_flowrate, 7 for AC
 indicator = 1
 step_size = 10
 episode = 2000
-
+"""
 # --------------------------------------
 
 

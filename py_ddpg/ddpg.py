@@ -100,6 +100,10 @@ class DDPG(object):
 
     def run(self, env):
         report = Report()
+        # add line spliter
+        report.updateReport(r"\report\report.csv", ["===========================================" + str(datetime.datetime.now())])
+        report.updateReport(r"\report\episode_report.csv", ["===========================================" + str(datetime.datetime.now())])
+
         # First, gather experience
         for e in range(self.episode):
             # Reset episode

@@ -34,7 +34,15 @@ class DDPG(object):
         # Create actor and critic networks
         self.actor = Actor(state_dim, action_dim, batch_size, lra, tau)
         self.critic = Critic(state_dim, action_dim, batch_size, lrc, tau)
-        self.buffer = MemoryBuffer(buffer_size)
+        #-----------------------------------------------------------------*
+        """
+        using previous buffer, set True.
+        not using previous buffer, set False
+        """
+        self.buffer = MemoryBuffer(buffer_size, False, True)
+        #self.buffer = MemoryBuffer(buffer_size, False, False)
+        #-----------------------------------------------------------------*        
+
         # !: weights folder need to be specified & ensure only one set of A&C weights are in this folder
         self.weights_dir_path = os.getcwd() + r"\saved_model\*.h5"
 

@@ -25,7 +25,7 @@ class MemoryBuffer(object):
         self.with_per = with_per
         self.buffer_size = buffer_size
 
-        """
+
         # windows path
         self.buffer_path = {
             "state_old": os.getcwd() + r"\memory\state_old.csv",
@@ -34,8 +34,8 @@ class MemoryBuffer(object):
             "done": os.getcwd() + r"\memory\done.csv",
             "state_new": os.getcwd() + r"\memory\state_new.csv",
             }
-        """
 
+        """
         # linux & mac path
         self.buffer_path = {
             "state_old": os.getcwd() + "/memory/state_old.csv",
@@ -44,7 +44,7 @@ class MemoryBuffer(object):
             "done": os.getcwd() + "/memory/done.csv",
             "state_new": os.getcwd() + "/memory/state_new.csv",
             }
-
+        """
         if load_old_buffer:
             self.load_buffer()
 

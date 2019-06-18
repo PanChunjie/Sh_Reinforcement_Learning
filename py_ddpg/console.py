@@ -19,6 +19,7 @@ state_dim = 7   #TODO: currently 2, later will be 8, 1 for SH_flowrate, 7 for AC
 indicator = 1
 step_size = 10
 episode = 2000
+REWARD_THRESHOLD = 3000
 
 
 # -------------------------------------- set 2
@@ -43,6 +44,6 @@ episode = 2000
 
 
 
-ddpg = DDPG(action_dim, state_dim, BATCH_SIZE, step_size, BUFFER_SIZE, indicator, episode, GAMMA, LRA, LRC, TAU)
+ddpg = DDPG(action_dim, state_dim, BATCH_SIZE, step_size, BUFFER_SIZE, indicator, episode, GAMMA, LRA, LRC, TAU, REWARD_THRESHOLD)
 
 ddpg.run(env)

@@ -18,7 +18,7 @@ class DDPG(object):
     """ Deep Deterministic Policy Gradient (DDPG) Helper Class
     """
 
-    def __init__(self, action_dim, state_dim, batch_size, step, buffer_size, train_indicator, episode, gamma, lra, lrc, tau, load_weight=True):
+    def __init__(self, action_dim, state_dim, batch_size, step, buffer_size, train_indicator, episode, gamma, lra, lrc, tau, reward_threshold, load_weight=True):
         """ Initialization
         """
         # Environment and A2C parameters
@@ -32,6 +32,7 @@ class DDPG(object):
         self.tau = tau
         self.episode = episode
         self.train_indicator = train_indicator
+        self.reward_threshold = reward_threshold
         # Create actor and critic networks
         self.actor = Actor(state_dim, action_dim, batch_size, lra, tau)
         self.critic = Critic(state_dim, action_dim, batch_size, lrc, tau)
@@ -117,6 +118,7 @@ class DDPG(object):
         # First, gather experience
         for e in range(self.episode):
             # Reset episode
+            #env.reset()
             # set initial state
             loss, cumul_reward, cumul_loss = 0, 0, 0
             done = False
@@ -125,7 +127,11 @@ class DDPG(object):
 
             print("Episode: ", e, " ========================:")
 
-            for t in range(self.step):
+            #for t in range(self.step):
+            t = 0
+
+            while not done:
+                t += 1
                 action_original = self.policy_action(state_old)
                 
                 #TODO: OU function params?
@@ -143,7 +149,8 @@ class DDPG(object):
                 reward, state_new = env.get_vissim_reward(180*5, transformed_action)
 
                 # TODO: if we know what the optimal discharging rate, then we set that as done
-                if t == self.step - 1: #we consider the manually setted last step as done
+                # if t == self.step - 1:
+                if reward < self.reward_threshold: #we consider the manually setted last step as done
                     done = True
 
                 # ======================================================================================= Training section

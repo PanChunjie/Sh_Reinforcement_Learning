@@ -34,8 +34,8 @@ class Vissim:
         self.vissim.Simulation.SetAttValue("simRes", simRes)
         self.vissim.Simulation.SetAttValue("randSeed", randSeed)
         self.vissim.Simulation.SetAttValue("NumCores", 1)
-        # vissim.Simulation.SetAttValue("UseMaxSimSpeed", True)
-        # vissim.Graphics.CurrentNetworkWindow.SetAttValue("QuickMode", 1) #Disable the visibility of all dynamic elements
+        vissim.Simulation.SetAttValue("UseMaxSimSpeed", True)
+        vissim.Graphics.CurrentNetworkWindow.SetAttValue("QuickMode", 1) #Disable the visibility of all dynamic elements
 
     def set_evaluation_atts(self, simPeriod, dataCollectionInterval = 30):
         self.vissim.Evaluation.SetAttValue("DataCollCollectData", True)

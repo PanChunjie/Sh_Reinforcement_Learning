@@ -7,9 +7,10 @@ import gc
 
 from actor import Actor
 from critic import Critic
-from utils.networks import tfSummary, clip, OrnsteinUhlenbeckProcess
+from utils.networks import tfSummary
 from utils.memory_buffer import MemoryBuffer
 from utils.report import Report
+from utils.noise import OrnsteinUhlenbeckActionNoise
 
 from Transformation import Transformation
 
@@ -128,18 +129,16 @@ class DDPG(object):
                 action_original = self.policy_action(state_old)
                 
                 #TODO: OU function params?
-                noise = OrnsteinUhlenbeckProcess(x0=action_original, size=self.action_dim)
+                # 1st OU test
+                #noise = OrnsteinUhlenbeckProcess(x0=action_original, size=self.action_dim)
+                # 2nd OU test
+                noise = OrnsteinUhlenbeckActionNoise(action_dim=self.action_dim)
 
-                # action = action_orig + noise
-                action = noise.apply_ou(t)
-
-                # adjust too-low or too-high action
-                adj_action = np.zeros(len(action))
-                for index, value in enumerate(action):
-                    adj_action[index] = clip(value, -1, 1)
+                action_original += noise.ou_noise()
+                action = np.clip(action_original, 0, 1)
 
                 #action_mapping function
-                transformed_action = Transformation.convert_actions(adj_action)
+                transformed_action = Transformation.convert_actions(action)
 
                 reward, state_new = env.get_vissim_reward(180*5, transformed_action)
 
@@ -150,7 +149,7 @@ class DDPG(object):
                 # ======================================================================================= Training section
                 if (self.train_indicator):
                     # Add outputs to memory buffer
-                    self.memorize(state_old, adj_action, reward, done, state_new)
+                    self.memorize(state_old, action, reward, done, state_new)
                     # Sample experience from buffer
                     states_old, actions, rewards, dones, states_new = self.sample_batch(self.batch_size)
                     # Predict target q-values using target networks

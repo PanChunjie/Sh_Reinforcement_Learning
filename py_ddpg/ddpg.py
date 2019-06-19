@@ -17,7 +17,7 @@ class DDPG(object):
     """ Deep Deterministic Policy Gradient (DDPG) Helper Class
     """
 
-    def __init__(self, action_dim, state_dim, batch_size, step, buffer_size, train_indicator, episode, gamma, lra, lrc, tau, load_weight=True):
+    def __init__(self, action_dim, state_dim, batch_size, step, buffer_size, train_indicator, episode, gamma, lra, lrc, tau, reward_threshold, load_weight=True):
         """ Initialization
         """
         # Environment and A2C parameters
@@ -30,6 +30,7 @@ class DDPG(object):
         self.lrc = lrc
         self.tau = tau
         self.episode = episode
+        self.reward_threshold = reward_threshold
         self.train_indicator = train_indicator
         # Create actor and critic networks
         self.actor = Actor(state_dim, action_dim, batch_size, lra, tau)
@@ -116,6 +117,7 @@ class DDPG(object):
         # First, gather experience
         for e in range(self.episode):
             # Reset episode
+            env.stop_simulation()
             # set initial state
             loss, cumul_reward, cumul_loss = 0, 0, 0
             done = False
@@ -124,7 +126,9 @@ class DDPG(object):
 
             print("Episode: ", e, " ========================:")
 
-            for t in range(self.step):
+            t = 0
+            while not done:
+                t += 1
                 action_original = self.policy_action(state_old)
                 
                 #TODO: OU function params?
@@ -132,25 +136,21 @@ class DDPG(object):
 
                 # action = action_orig + noise
                 action = noise.apply_ou(t)
-
-                # adjust too-low or too-high action
-                adj_action = np.zeros(len(action))
-                for index, value in enumerate(action):
-                    adj_action[index] = clip(value, -1, 1)
+                action = np.clip(action, -1, 1)
 
                 #action_mapping function
-                transformed_action = Transformation.convert_actions(adj_action)
+                transformed_action = Transformation.convert_actions(action)
 
                 reward, state_new = env.get_vissim_reward(180*5, transformed_action)
 
                 # TODO: if we know what the optimal discharging rate, then we set that as done
-                if t == self.step - 1: #we consider the manually setted last step as done
-                    done = True
+                if reward < self.reward_threshold or t == self.step: #we consider the manually setted last step as done
+                    done = True                
 
                 # ======================================================================================= Training section
                 if (self.train_indicator):
                     # Add outputs to memory buffer
-                    self.memorize(state_old, adj_action, reward, done, state_new)
+                    self.memorize(state_old, action, reward, done, state_new)
                     # Sample experience from buffer
                     states_old, actions, rewards, dones, states_new = self.sample_batch(self.batch_size)
                     # Predict target q-values using target networks

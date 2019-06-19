@@ -188,7 +188,7 @@ class MemoryBuffer(object):
         keys = ["state_old", "action", "reward", "done", "state_new"]
 
         for k in keys:
-            with open(self.buffer_path[k], 'a') as fileWriter:
+            with open(self.buffer_path[k], 'a', newline='') as fileWriter:
                 writer = csv.writer(fileWriter)
                 record = experience[keys.index(k)]
                 if type(record) == type(np.array([])):

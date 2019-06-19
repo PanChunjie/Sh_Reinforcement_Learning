@@ -19,20 +19,20 @@ from keras.layers import Dense, Flatten, Input, merge, Lambda
 from keras.optimizers import Adam
 """
 
+"""
 # -------------------------------------- set 1
-
 scalar = 7
 multiplier = 100
 HIDDEN1_UNITS = multiplier * scalar
 HIDDEN2_UNITS = multiplier * 2 * scalar
-
-# -------------------------------------- set 2
+# --------------------------------------
 """
+# -------------------------------------- set 2
 scalar = 7
 multiplier = 1
 HIDDEN1_UNITS = multiplier * scalar
 HIDDEN2_UNITS = multiplier * 2 * scalar
-"""
+# -------------------------------------- 
 
 class Actor:
     """ Actor Network for the DDPG Algorithm
@@ -62,6 +62,19 @@ class Actor:
         h0 = Dense(HIDDEN1_UNITS, activation='relu')(S)
         h1 = Dense(HIDDEN2_UNITS, activation='relu')(h0)
         # TODO: kernel_initializer choices?
+
+        
+        # ---------------------------------------------------------------------------- tanh
+        spd_1 = Dense(1, activation='tanh', kernel_initializer=RandomUniform())(h1)
+        spd_2 = Dense(1, activation='tanh', kernel_initializer=RandomUniform())(h1)
+        spd_3 = Dense(1, activation='tanh', kernel_initializer=RandomUniform())(h1)
+        spd_4 = Dense(1, activation='tanh', kernel_initializer=RandomUniform())(h1)
+        spd_5 = Dense(1, activation='tanh', kernel_initializer=RandomUniform())(h1)
+        spd_6 = Dense(1, activation='tanh', kernel_initializer=RandomUniform())(h1)
+        spd_7 = Dense(1, activation='tanh', kernel_initializer=RandomUniform())(h1)                                                
+        # ----------------------------------------------------------------------------
+        """
+        # ---------------------------------------------------------------------------- tanh
         spd_1 = Dense(1, activation='sigmoid', kernel_initializer=RandomUniform())(h1)
         spd_2 = Dense(1, activation='sigmoid', kernel_initializer=RandomUniform())(h1)
         spd_3 = Dense(1, activation='sigmoid', kernel_initializer=RandomUniform())(h1)
@@ -69,6 +82,9 @@ class Actor:
         spd_5 = Dense(1, activation='sigmoid', kernel_initializer=RandomUniform())(h1)
         spd_6 = Dense(1, activation='sigmoid', kernel_initializer=RandomUniform())(h1)
         spd_7 = Dense(1, activation='sigmoid', kernel_initializer=RandomUniform())(h1)
+        # ----------------------------------------------------------------------------        
+        """
+
         V = concatenate([spd_1, spd_2, spd_3, spd_4, spd_5, spd_6, spd_7])
         model = Model(S, V)
         #

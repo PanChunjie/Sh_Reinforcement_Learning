@@ -6,14 +6,16 @@ class Transformation(object):
         action_space = 19 # [30, 120]
         min_speed = 30
         max_speed = 120
-        min_output = 0
+        min_output = -1 # tanh        
+        #min_output = 0 # sigmoid
         max_output = 1
         output_range = max_output - min_output
         mapping_size = output_range / action_space
         speed_limits = []
 
         for a in actions:
-            action = int(a / mapping_size)
+            action = int((a + 1) / mapping_size) # tanh
+            #action = int(a / mapping_size) # sigmoid
             speed = int(30 + action * 5)
 
             if speed > max_speed:

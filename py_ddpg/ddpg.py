@@ -10,7 +10,7 @@ from critic import Critic
 from utils.networks import tfSummary
 from utils.memory_buffer import MemoryBuffer
 from utils.report import Report
-from utils.noise import OrnsteinUhlenbeckActionNoise
+from utils.noise import OrnsteinUhlenbeckActionNoise, OrnsteinUhlenbeckProcess
 
 from Transformation import Transformation
 
@@ -116,9 +116,9 @@ class DDPG(object):
         report.updateReport(r"\report\episode_report.csv", ["===========================================" + str(datetime.datetime.now())])
 
         # First, gather experience
-        for e in range(self.episode):
+        for e in range(1, self.episode + 1):
             # Reset episode
-            #env.reset()
+            env.stop_simulation()
             # set initial state
             loss, cumul_reward, cumul_loss = 0, 0, 0
             done = False
@@ -135,13 +135,20 @@ class DDPG(object):
                 action_original = self.policy_action(state_old)
                 
                 #TODO: OU function params?
-                # 1st OU test
-                #noise = OrnsteinUhlenbeckProcess(x0=action_original, size=self.action_dim)
-                # 2nd OU test
+
+                # -------------------------------------------------------------- 1st OU test
+                noise = OrnsteinUhlenbeckProcess(x0=action_original, size=self.action_dim)
+                action = noise.apply_ou(t)
+                action = np.clip(action, -1, 1)
+                # --------------------------------------------------------------                
+                """
+                # -------------------------------------------------------------- 2nd OU test                
                 noise = OrnsteinUhlenbeckActionNoise(action_dim=self.action_dim)
 
                 action_original += noise.ou_noise()
-                action = np.clip(action_original, 0, 1)
+                action = np.clip(action_original, -1, 1)
+                # --------------------------------------------------------------                 
+                """
 
                 #action_mapping function
                 transformed_action = Transformation.convert_actions(action)
@@ -150,7 +157,7 @@ class DDPG(object):
 
                 # TODO: if we know what the optimal discharging rate, then we set that as done
                 # if t == self.step - 1:
-                if reward < self.reward_threshold: #we consider the manually setted last step as done
+                if reward < self.reward_threshold or t == self.step + 1: #we consider the manually setted last step as done
                     done = True
 
                 # ======================================================================================= Training section

@@ -34,8 +34,8 @@ class Vissim:
         self.vissim.Simulation.SetAttValue("simRes", simRes)
         self.vissim.Simulation.SetAttValue("randSeed", randSeed)
         self.vissim.Simulation.SetAttValue("NumCores", 1)
-        vissim.Simulation.SetAttValue("UseMaxSimSpeed", True)
-        vissim.Graphics.CurrentNetworkWindow.SetAttValue("QuickMode", 1) #Disable the visibility of all dynamic elements
+        self.vissim.Simulation.SetAttValue("UseMaxSimSpeed", True)
+        self.vissim.Graphics.CurrentNetworkWindow.SetAttValue("QuickMode", 1) #Disable the visibility of all dynamic elements
 
     def set_evaluation_atts(self, simPeriod, dataCollectionInterval = 30):
         self.vissim.Evaluation.SetAttValue("DataCollCollectData", True)
@@ -157,8 +157,8 @@ class Vissim:
         density6 = self.get_current_density(10)
 
         # set state (flow rate, density of [SH, Acc])
-        state = np.array([flow_rate, density1, density2, density3, density4,density5,density6])
-        return reward, state
+        state_new = np.array([flow_rate, density1, density2, density3, density4, density5, density6])
+        return reward, state_new
 
 
     def run_one_interval(self):

@@ -13,6 +13,8 @@ from utils.report import Report
 from utils.noise import OrnsteinUhlenbeckActionNoise, OrnsteinUhlenbeckProcess
 
 from Transformation import Transformation
+import random
+
 
 class DDPG(object):
     """ Deep Deterministic Policy Gradient (DDPG) Helper Class
@@ -135,12 +137,13 @@ class DDPG(object):
                 action_original = self.policy_action(state_old)
                 
                 #TODO: OU function params?
-
+                """
                 # -------------------------------------------------------------- 1st OU test
                 noise = OrnsteinUhlenbeckProcess(x0=action_original, size=self.action_dim)
                 action = noise.apply_ou(t)
                 action = np.clip(action, -1, 1)
                 # --------------------------------------------------------------                
+                """
                 """
                 # -------------------------------------------------------------- 2nd OU test                
                 noise = OrnsteinUhlenbeckActionNoise(action_dim=self.action_dim)
@@ -149,6 +152,14 @@ class DDPG(object):
                 action = np.clip(action_original, -1, 1)
                 # --------------------------------------------------------------                 
                 """
+                # -------------------------------------------------------------- 3rd e-greedy
+                epsilon = 0.3
+                for i in range(len(action_original)):
+                    if random.uniform(0, 1) < epsilon:
+                        action_original[i] = random.uniform(-1, 1)
+                action = np.clip(action_original, -1, 1)
+                # --------------------------------------------------------------
+
 
                 #action_mapping function
                 transformed_action = Transformation.convert_actions(action)
